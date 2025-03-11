@@ -20,6 +20,46 @@ The system consists of:
 - **Database**: MongoDB for storing context data
 - **Authentication**: JWT-based auth system
 
+## Architecture Diagram
+
+Here's a diagram showing how the complete integration works:
+
+```
+┌───────────────┐     ┌────────────────────┐     ┌───────────────┐
+│ MCP Frontend  │────▶│    MCP Backend     │────▶│ LLM Provider  │
+└───────────────┘     └────────────────────┘     └───────────────┘
+                               │  ▲
+                               │  │
+                               ▼  │
+                      ┌────────────────────┐
+                      │  MongoDB Context   │
+                      └────────────────────┘
+                               │  ▲
+                               │  │
+                      ┌────────┴──┴────────┐
+                      │  Integration Svc   │
+                      └────────────────────┘
+                               │  ▲
+                      ┌────────┴──┴────────┐
+                      │     Adapters       │
+                      └────────────────────┘
+                               │  ▲
+                   ┌───────────┴──┴───────────┐
+                   │                          │
+         ┌─────────▼──────────┐    ┌──────────▼─────────┐
+         │ ServiceNow API     │    │ Ivanti API         │
+         └────────────────────┘    └────────────────────┘
+```
+
+## Benefits of This Architecture
+
+1. **Unified Context Management**: All data from various ITSM systems is stored in a standardized context format
+2. **Flexibility**: Add new ITSM systems by creating new adapters without changing the core code
+3. **LLM Agnostic**: Switch between different LLM providers as needed
+4. **Enhanced Intelligence**: The MCP provides relevant context from multiple ITSM sources to make LLM responses more accurate
+5. **Audit Trail**: All queries, context data, and LLM responses are stored for compliance and future reference
+6. **Performance Optimization**: Context caching reduces the need to repeatedly query ITSM systems
+
 ## Getting Started
 
 ### Prerequisites
@@ -67,5 +107,4 @@ The application will be available at http://localhost:3000
 
 ## License
 
-MIT # MCP-ITSM
-# MCP-ITSM
+MIT

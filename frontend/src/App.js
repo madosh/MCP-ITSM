@@ -1,84 +1,95 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Container } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Layout components
-import Layout from './components/Layout';
-
-// Authentication components
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import ProtectedRoute from './components/ProtectedRoute';
-
-// Main pages
+// Page components
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-
-// Context management pages
-import Contexts from './pages/contexts/Contexts';
-import ContextDetail from './pages/contexts/ContextDetail';
-import CreateContext from './pages/contexts/CreateContext';
-
-// Integration pages
-import Integrations from './pages/integrations/Integrations';
-import IntegrationDetail from './pages/integrations/IntegrationDetail';
-import CreateIntegration from './pages/integrations/CreateIntegration';
-
-// User management pages
-import Users from './pages/users/Users';
-import UserDetail from './pages/users/UserDetail';
-
-// Other pages
+import IntegrationsList from './pages/IntegrationsList';
+import IntegrationDetail from './pages/IntegrationDetail';
+import CreateIntegration from './pages/CreateIntegration';
+import Profile from './pages/Profile';
+import UserManagement from './pages/UserManagement';
 import NotFound from './pages/NotFound';
-import { useAuth } from './context/AuthContext';
+
+// Components
+import Header from './components/Header';
+import Footer from './components/Footer';
+import PrivateRoute from './components/PrivateRoute';
+
+// Services
+import { authService } from './services/api';
 
 function App() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="100vh"
-      >
-        Loading...
-      </Box>
-    );
-  }
-
   return (
-    <Routes>
-      {/* Auth routes */}
-      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
-      <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
-      
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<Layout />}>
-          {/* Dashboard */}
-          <Route path="/" element={<Dashboard />} />
-          
-          {/* Contexts */}
-          <Route path="/contexts" element={<Contexts />} />
-          <Route path="/contexts/create" element={<CreateContext />} />
-          <Route path="/contexts/:id" element={<ContextDetail />} />
-          
-          {/* Integrations */}
-          <Route path="/integrations" element={<Integrations />} />
-          <Route path="/integrations/create" element={<CreateIntegration />} />
-          <Route path="/integrations/:id" element={<IntegrationDetail />} />
-          
-          {/* Users */}
-          <Route path="/users" element={<Users />} />
-          <Route path="/users/:id" element={<UserDetail />} />
-        </Route>
-      </Route>
-      
-      {/* Not found */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <Router>
+      <div className="d-flex flex-column min-vh-100">
+        <Header />
+        <Container className="flex-grow-1 py-4">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            
+            <Route 
+              path="/" 
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route 
+              path="/integrations" 
+              element={
+                <PrivateRoute>
+                  <IntegrationsList />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route 
+              path="/integrations/:id" 
+              element={
+                <PrivateRoute>
+                  <IntegrationDetail />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route 
+              path="/integrations/create" 
+              element={
+                <PrivateRoute>
+                  <CreateIntegration />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route 
+              path="/profile" 
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route 
+              path="/users" 
+              element={
+                <PrivateRoute requiredRole="admin">
+                  <UserManagement />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Container>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 

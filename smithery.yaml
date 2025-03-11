@@ -1,7 +1,12 @@
 version: "1.0"
 
 name: mcp-itsm
-description: Model Context Protocol for ITSM
+description: REST API for ITSM Integration Services
+
+# Explicitly specify this is a REST API, not an MCP server
+api:
+  type: "REST"
+  baseUrl: "/api"
 
 build:
   dockerfile: Dockerfile

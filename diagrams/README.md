@@ -1,15 +1,23 @@
-# MCP-ITSM System Diagrams
+# ITSM Integration Platform Diagrams
 
-This folder contains Mermaid diagrams that explain the architecture and functionality of the Model Context Protocol for ITSM integration.
+This folder contains Mermaid diagrams that explain the architecture and functionality of the ITSM Integration Platform.
 
 ## Diagrams Overview
 
-1. **system_architecture.mmd** - Overall system architecture
-2. **data_flow.mmd** - Data flow between system components
-3. **entity_relationship.mmd** - Database entity relationships
-4. **authentication_flow.mmd** - User authentication process
-5. **context_lifecycle.mmd** - Lifecycle states of a context
-6. **component_architecture.mmd** - Component-level architecture
+### Original MCP-ITSM Diagrams
+1. **system_architecture.mmd** - Original MCP system architecture
+2. **data_flow.mmd** - Original data flow between MCP components
+3. **entity_relationship.mmd** - Original database entity relationships
+4. **authentication_flow.mmd** - Original user authentication process
+5. **context_lifecycle.mmd** - Original lifecycle states of a context
+6. **component_architecture.mmd** - Original component-level architecture
+
+### ITSM Integration Platform Diagrams
+7. **itsm_integration_architecture.mmd** - Updated system architecture for ITSM Integration
+8. **authentication_flow_updated.mmd** - Updated authentication workflow for ITSM Integration
+9. **integration_workflow.mmd** - Workflow for creating and using integrations
+10. **monitoring_architecture.mmd** - Monitoring stack architecture
+11. **itsm_data_model.mmd** - Updated entity relationship diagram for ITSM Integration
 
 ## Viewing the Diagrams
 
@@ -18,4 +26,13 @@ These diagrams are written in Mermaid format. You can view them using:
 - GitHub (which natively renders Mermaid in markdown)
 - VS Code with the Mermaid extension
 - The official Mermaid Live Editor: https://mermaid.live/
-- Any Markdown editor that supports Mermaid 
+- Any Markdown editor that supports Mermaid
+
+## Adding New Diagrams
+
+To add a new diagram:
+
+1. Create a new `.mmd` file following the naming convention
+2. Use Mermaid syntax to create your diagram
+3. Update this README to include your new diagram
+4. Test your diagram in a Mermaid renderer before committing 

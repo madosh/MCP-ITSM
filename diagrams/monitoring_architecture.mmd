@@ -1,0 +1,62 @@
+flowchart LR
+    %% API and Metrics Sources
+    subgraph API[API Server]
+        direction TB
+        Metrics[Metrics Endpoint]
+        HealthCheck[Health Check Endpoint]
+        RequestMetrics[Request Duration Metrics]
+        ErrorMetrics[Error Rate Metrics]
+        IntegrationMetrics[Integration Health Metrics]
+        
+        RequestMetrics --> Metrics
+        ErrorMetrics --> Metrics
+        IntegrationMetrics --> Metrics
+    end
+    
+    %% Monitoring Stack
+    subgraph Monitoring[Monitoring Stack]
+        direction TB
+        Prometheus[Prometheus Server]
+        Grafana[Grafana]
+        AlertManager[Alert Manager]
+        
+        Prometheus --> Grafana
+        Prometheus --> AlertManager
+    end
+    
+    %% Notification Channels
+    subgraph Notifications[Notification Channels]
+        Email[Email Alerts]
+        Slack[Slack Notifications]
+        PagerDuty[PagerDuty]
+        Webhook[Custom Webhooks]
+    end
+    
+    %% Dashboard Types
+    subgraph Dashboards[Grafana Dashboards]
+        APIPerformance[API Performance]
+        IntegrationHealth[Integration Health Status]
+        ErrorRates[Error Rates]
+        SystemResources[System Resources]
+    end
+    
+    %% Connections
+    Metrics --> Prometheus
+    HealthCheck --> Prometheus
+    
+    AlertManager --> Email
+    AlertManager --> Slack
+    AlertManager --> PagerDuty
+    AlertManager --> Webhook
+    
+    Grafana --> APIPerformance
+    Grafana --> IntegrationHealth
+    Grafana --> ErrorRates
+    Grafana --> SystemResources
+    
+    %% External Monitoring
+    UptimeRobot[Uptime Robot]
+    StatusPage[Status Page]
+    
+    UptimeRobot --> HealthCheck
+    AlertManager --> StatusPage 

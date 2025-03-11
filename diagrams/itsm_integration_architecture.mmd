@@ -1,0 +1,57 @@
+flowchart TB
+    subgraph Client
+        UI[React Frontend]
+        Dashboard[Dashboard]
+        IntegrationsUI[Integrations Management UI]
+        UsersUI[User Management UI]
+        
+        UI --> Dashboard
+        UI --> IntegrationsUI
+        UI --> UsersUI
+    end
+    
+    subgraph ITSM_Integration_Platform
+        API[REST API Server]
+        AuthModule[Authentication Module]
+        UserModule[User Management Module]
+        IntegrationModule[Integration Management Module]
+        HealthModule[Health Monitoring Module]
+        
+        API --> AuthModule
+        API --> UserModule
+        API --> IntegrationModule
+        API --> HealthModule
+    end
+    
+    subgraph Persistence
+        MongoDB[(MongoDB)]
+        TokenStorage[JWT Token Storage]
+    end
+    
+    subgraph ITSM_Systems
+        ServiceNow[ServiceNow]
+        Jira[Jira]
+        Zendesk[Zendesk]
+        Other[Other ITSM Tools]
+    end
+    
+    subgraph Monitoring
+        Prometheus[Prometheus]
+        Grafana[Grafana Dashboards]
+        AlertManager[Alert Manager]
+    end
+    
+    UI <--> API
+    AuthModule <--> MongoDB
+    UserModule <--> MongoDB
+    IntegrationModule <--> MongoDB
+    AuthModule <--> TokenStorage
+    
+    IntegrationModule <--> ServiceNow
+    IntegrationModule <--> Jira
+    IntegrationModule <--> Zendesk
+    IntegrationModule <--> Other
+    
+    API --> Prometheus
+    Prometheus --> Grafana
+    Prometheus --> AlertManager 

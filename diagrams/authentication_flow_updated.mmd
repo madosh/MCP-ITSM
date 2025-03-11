@@ -1,0 +1,56 @@
+sequenceDiagram
+    participant User
+    participant Frontend as React Frontend
+    participant API as REST API
+    participant Auth as Authentication Module
+    participant DB as MongoDB
+    
+    %% User Login Flow
+    User->>Frontend: Enter Credentials
+    Frontend->>API: POST /api/auth/login
+    API->>Auth: Validate Credentials
+    Auth->>DB: Query User
+    DB-->>Auth: Return User Data
+    
+    alt Invalid Credentials
+        Auth-->>API: Authentication Failed
+        API-->>Frontend: 401 Unauthorized
+        Frontend-->>User: Show Error
+    else Valid Credentials
+        Auth->>Auth: Generate JWT Token
+        Auth-->>API: Return Token + User Data
+        API-->>Frontend: 200 OK with Token + User Data
+        Frontend->>Frontend: Store Token in localStorage
+        Frontend-->>User: Redirect to Dashboard
+    end
+    
+    %% Authenticated Request Flow
+    User->>Frontend: Request Protected Resource
+    Frontend->>Frontend: Check for Token
+    
+    alt No Token
+        Frontend-->>User: Redirect to Login
+    else Token Exists
+        Frontend->>API: Request with Authorization Header
+        API->>Auth: Verify Token
+        
+        alt Invalid/Expired Token
+            Auth-->>API: Token Invalid
+            API-->>Frontend: 401 Unauthorized
+            Frontend->>Frontend: Clear Token
+            Frontend-->>User: Redirect to Login
+        else Valid Token
+            Auth-->>API: Token Valid (User Role & ID)
+            API->>API: Check Authorization for Resource
+            
+            alt Unauthorized for Resource
+                API-->>Frontend: 403 Forbidden
+                Frontend-->>User: Show Access Denied
+            else Authorized
+                API->>DB: Process Request
+                DB-->>API: Return Data
+                API-->>Frontend: 200 OK with Data
+                Frontend-->>User: Display Data
+            end
+        end
+    end 

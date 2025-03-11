@@ -1,0 +1,42 @@
+sequenceDiagram
+    participant User as User
+    participant ChatUI as Chat Client UI
+    participant API as ITSM Integration API
+    participant MCP as MCP Platform
+    participant Adapter as ITSM Adapters
+    participant Systems as ITSM Systems
+
+    User->>ChatUI: Enter message
+    User->>ChatUI: Select ITSM system
+    User->>ChatUI: Submit ticket request
+    
+    ChatUI->>API: POST /api/ticket/create/{integrationId}
+    
+    API->>MCP: Authenticate request
+    MCP-->>API: Authentication confirmed
+    
+    API->>MCP: Get integration configuration
+    MCP-->>API: Return integration details
+    
+    API->>Adapter: Format ticket for target system
+    
+    alt ServiceNow Selected
+        Adapter->>Systems: Create incident in ServiceNow
+        Systems-->>Adapter: Return ticket ID & details
+    else Jira Selected
+        Adapter->>Systems: Create issue in Jira
+        Systems-->>Adapter: Return ticket ID & details
+    else Zendesk Selected
+        Adapter->>Systems: Create ticket in Zendesk
+        Systems-->>Adapter: Return ticket ID & details
+    end
+    
+    Adapter-->>API: Return formatted response
+    API-->>ChatUI: Return ticket creation result
+    
+    ChatUI->>User: Display ticket confirmation
+    ChatUI->>User: Show ticket link & details
+    
+    note over MCP: MCP provides:<br>1. Authentication<br>2. Integration config storage<br>3. Request routing<br>4. Deployment infrastructure
+    note over Adapter: ITSM Integration Platform provides:<br>1. System-specific adapters<br>2. Data transformation<br>3. Health monitoring<br>4. Unified API
+    note over ChatUI: Chat Client demonstrates<br>a unified interface for all ITSM systems 

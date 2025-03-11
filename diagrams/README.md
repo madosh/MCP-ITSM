@@ -19,6 +19,11 @@ This folder contains Mermaid diagrams that explain the architecture and function
 10. **monitoring_architecture.mmd** - Monitoring stack architecture
 11. **itsm_data_model.mmd** - Updated entity relationship diagram for ITSM Integration
 
+### MCP-ITSM Relationship Diagrams
+12. **mcp_architecture_relationship.mmd** - Illustrates how MCP enables the ITSM Integration Platform
+13. **mcp_enabled_flow.mmd** - Technical flowchart showing how MCP components power the solution
+14. **chat_client_mcp_integration.mmd** - Sequence diagram of Chat Client interaction with MCP to create tickets
+
 ## Viewing the Diagrams
 
 These diagrams are written in Mermaid format. You can view them using:

@@ -24,6 +24,12 @@ This folder contains Mermaid diagrams that explain the architecture and function
 13. **mcp_enabled_flow.mmd** - Technical flowchart showing how MCP components power the solution
 14. **chat_client_mcp_integration.mmd** - Sequence diagram of Chat Client interaction with MCP to create tickets
 
+### MCP-LLM Integration Diagrams
+15. **mcp-llm-integration-flow.mmd** - Flowchart showing how Model Context Protocol (MCP) enables LLM-powered ticket creation
+16. **mcp-llm-component-architecture.mmd** - Class diagram showing the component architecture of the Model Context Protocol
+17. **mcp-llm-sequence.mmd** - Sequence diagram illustrating the interaction flow of the Model Context Protocol components
+18. **mcp-llm-data-model.mmd** - Entity relationship diagram of the Model Context Protocol's data structures
+
 ## Viewing the Diagrams
 
 These diagrams are written in Mermaid format. You can view them using:

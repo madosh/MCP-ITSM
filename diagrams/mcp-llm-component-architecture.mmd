@@ -1,0 +1,118 @@
+classDiagram
+    %% Main Classes
+    ModelContextProtocol <|-- ContextManager
+    ModelContextProtocol <|-- ConversationState
+    LLMService --> ModelContextProtocol
+    LLMService --> PromptTemplates
+    ContextManager --> ConversationState
+    ITSMAdapter <-- LLMService
+    
+    %% MCP Core Components
+    class ModelContextProtocol {
+        +initializeContext(userId, metadata) Context
+        +updateContext(context, message) Context
+        +retrieveContext(conversationId) Context
+        +summarizeContext(context) string
+        +extractEntities(context) Entity[]
+        +getRelevantHistory(context, query) Message[]
+    }
+    
+    class ContextManager {
+        -activeContexts Map~string, Context~
+        +createContext(userId, metadata) string
+        +getContext(conversationId) Context
+        +addMessage(conversationId, message) void
+        +updateMetadata(conversationId, metadata) void
+        +mergeContexts(contextIds[]) Context
+        +pruneContext(conversationId, options) void
+        +persistContext(conversationId) boolean
+    }
+    
+    class ConversationState {
+        -conversationId string
+        -messages Message[]
+        -metadata object
+        -extractedData object
+        -createdAt datetime
+        -updatedAt datetime
+        +addMessage(message) void
+        +getMessages() Message[]
+        +getMetadata() object
+        +setMetadata(metadata) void
+        +addExtractedData(data) void
+        +getExtractedData() object
+    }
+    
+    %% LLM Service Components
+    class LLMService {
+        -llmProvider LLMProvider
+        -contextManager ContextManager
+        -promptTemplates PromptTemplates
+        +processTicketRequest(message, systemType, context) TicketResponse
+        +getTicketSuggestions(message) Suggestion[]
+        +translateToTicket(message, systemType) TicketFormat
+        -enrichPromptWithContext(prompt, context) string
+        -extractTicketData(llmResponse) TicketData
+        -formatResponseForSystem(data, systemType) TicketFormat
+    }
+    
+    class PromptTemplates {
+        -templates Map~string, string~
+        +getPrompt(templateName) string
+        +getPromptWithParams(templateName, params) string
+        +addTemplate(name, template) void
+        +updateTemplate(name, template) void
+        +listTemplates() string[]
+        -validateTemplate(template) boolean
+    }
+    
+    class Message {
+        +role string
+        +content string
+        +timestamp datetime
+        +metadata object
+    }
+    
+    %% ITSM Integration Components
+    class ITSMAdapter {
+        -systemType string
+        -baseUrl string
+        -authConfig object
+        +createTicket(ticketData) Ticket
+        +getTicket(ticketId) Ticket
+        +updateTicket(ticketId, ticketData) Ticket
+        +formatTicketForSystem(genericTicket) SystemTicket
+        +formatTicketFromSystem(systemTicket) GenericTicket
+    }
+    
+    class ChatClientUI {
+        -chatHistory Message[]
+        -selectedSystem ITSMSystem
+        -conversationContext Context
+        -extractedTicketData TicketData
+        +handleUserMessage(message) void
+        +toggleLLMMode() void
+        +createTicket(ticketData) void
+        +renderMessages() JSX
+        +renderExtractedData() JSX
+    }
+    
+    ChatClientUI --> LLMService
+    ChatClientUI --> ITSMAdapter
+    
+    %% Ticket Related Classes
+    class TicketData {
+        +summary string
+        +description string
+        +priority string
+        +category string
+        +metadata object
+    }
+    
+    %% Styling
+    class ModelContextProtocol {
+        <<interface>>
+    }
+    class ITSMAdapter {
+        <<interface>>
+    } 

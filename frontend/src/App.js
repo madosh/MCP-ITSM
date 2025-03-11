@@ -11,6 +11,8 @@ import IntegrationDetail from './pages/IntegrationDetail';
 import CreateIntegration from './pages/CreateIntegration';
 import Profile from './pages/Profile';
 import UserManagement from './pages/UserManagement';
+import ChatClient from './pages/ChatClient';
+import LLMChatClient from './pages/LLMChatClient';
 import NotFound from './pages/NotFound';
 
 // Components
@@ -62,6 +64,24 @@ function App() {
               element={
                 <PrivateRoute>
                   <CreateIntegration />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route 
+              path="/chat" 
+              element={
+                <PrivateRoute>
+                  <ChatClient />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route 
+              path="/ai-chat" 
+              element={
+                <PrivateRoute>
+                  <LLMChatClient />
                 </PrivateRoute>
               } 
             />

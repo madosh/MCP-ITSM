@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
+import { Navbar, Nav, Container, NavDropdown, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
 
@@ -27,6 +27,14 @@ const Header = () => {
                 {(currentUser?.role === 'admin' || currentUser?.role === 'integrator') && (
                   <Nav.Link as={Link} to="/integrations/create">Create Integration</Nav.Link>
                 )}
+                <NavDropdown title="Ticket Creation" id="ticket-creation-dropdown">
+                  <NavDropdown.Item as={Link} to="/chat">
+                    Standard Chat Client
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/ai-chat">
+                    AI-Powered Chat <Badge bg="info" pill className="ms-1">New</Badge>
+                  </NavDropdown.Item>
+                </NavDropdown>
                 {currentUser?.role === 'admin' && (
                   <Nav.Link as={Link} to="/users">Users</Nav.Link>
                 )}

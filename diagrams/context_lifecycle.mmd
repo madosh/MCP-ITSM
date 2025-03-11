@@ -1,0 +1,31 @@
+stateDiagram-v2
+    [*] --> Created: Context created
+    
+    Created --> Active: Set status to active
+    Active --> Archived: TTL expired or archived
+    Active --> Active: Updated (version++)
+    Active --> Pending: Set status to pending
+    
+    Pending --> Active: Set status to active
+    Pending --> Archived: Set status to archived
+    
+    Archived --> [*]: Context deleted
+    
+    note right of Created
+        New context with version=1
+    end note
+    
+    note right of Active
+        Accessible by authorized users
+        Returned in API responses
+    end note
+    
+    note right of Pending
+        Not returned in normal API responses
+        Used for drafts or pending review
+    end note
+    
+    note right of Archived
+        Read-only
+        Only accessible via history API
+    end note 

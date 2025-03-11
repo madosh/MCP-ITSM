@@ -1,0 +1,53 @@
+erDiagram
+    User ||--o{ Context : creates
+    User ||--o{ Integration : manages
+    Context }o--|| Integration : source_from
+    
+    User {
+        ObjectId _id
+        string username
+        string email
+        string password
+        string firstName
+        string lastName
+        enum role
+        boolean isActive
+        date lastLogin
+        date createdAt
+        date updatedAt
+    }
+    
+    Context {
+        ObjectId _id
+        string name
+        string description
+        string source
+        string externalId
+        enum contentType
+        object data
+        object metadata
+        number ttl
+        date expiresAt
+        number size
+        ObjectId owner
+        object accessControl
+        number version
+        enum status
+        date createdAt
+        date updatedAt
+    }
+    
+    Integration {
+        ObjectId _id
+        string name
+        string description
+        enum type
+        object config
+        array endpoints
+        boolean isActive
+        object health
+        ObjectId createdBy
+        array managers
+        date createdAt
+        date updatedAt
+    } 

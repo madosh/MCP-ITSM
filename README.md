@@ -2,6 +2,12 @@
 
 A comprehensive platform for integrating with various IT Service Management (ITSM) systems through a unified API. This repository contains the backend API, client application, monitoring setup, and documentation.
 
+## Project Overview
+
+The ITSM Integration Platform is a comprehensive solution designed to unify access to diverse IT Service Management systems through a single, standardized API. It solves the common challenge organizations face when working with multiple ITSM tools (like Jira, ServiceNow, and Zendesk) by providing a centralized interface that handles authentication, request routing, response normalization, and health monitoring across all integrated systems. The platform features a React-based client application with role-based access control, a robust Node.js/Express backend with MongoDB for persistence, and a complete monitoring stack using Prometheus and Grafana to ensure reliability and performance.
+
+At its core, the platform implements a modular architecture where the Integration Management Module acts as a bridge between client applications and various ITSM systems, abstracting away the complexity of dealing with different APIs and authentication methods. The system provides comprehensive health monitoring of all integrations, allowing organizations to quickly identify and resolve connectivity issues. The platform supports multiple authentication mechanisms, includes detailed documentation, and features an intuitive dashboard that provides real-time visibility into integration status. This enables teams to manage their service management workflows more efficiently while reducing the technical overhead of maintaining multiple direct integrations with various ITSM providers.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -11,6 +17,7 @@ A comprehensive platform for integrating with various IT Service Management (ITS
 - [API Documentation](#api-documentation)
 - [Monitoring](#monitoring)
 - [Development](#development)
+- [Connecting to ITSM Sandboxes](#connecting-to-itsm-sandboxes)
 - [License](#license)
 
 ## Overview
@@ -134,6 +141,144 @@ Detailed monitoring setup instructions are available in the [monitoring/README.m
 - Prometheus for metrics collection
 - Grafana for visualization
 - Alert Manager for notifications
+
+## Connecting to ITSM Sandboxes
+
+The easiest way to connect the ITSM Integration Platform with sandbox environments of different ITSM tools is through a standardized approach:
+
+### 1. Create Developer Accounts
+
+Sign up for developer accounts on each ITSM platform:
+- **ServiceNow Developer Program**: https://developer.servicenow.com/
+- **Atlassian (Jira) Developer Program**: https://developer.atlassian.com/
+- **Zendesk Developer Program**: https://developer.zendesk.com/
+
+### 2. Set Up Sandbox Instances
+
+Each platform provides different methods for creating sandbox environments:
+- **ServiceNow**: Create a Personal Developer Instance (PDI) from the developer portal
+- **Jira**: Set up a Cloud Development site or use the Atlassian Cloud Development environment
+- **Zendesk**: Create a trial account or sandbox instance from the developer portal
+
+### 3. Generate API Credentials
+
+For each platform, generate the necessary API credentials:
+
+#### ServiceNow
+- Create a Service Account or OAuth application
+- For basic testing, you can use Basic Authentication with admin credentials
+- For production, use OAuth with client ID and client secret
+
+#### Jira
+- Create an API token from your Atlassian account
+- For cloud instances, create a OAuth application
+- Note the base URL of your instance (e.g., `https://your-instance.atlassian.net`)
+
+#### Zendesk
+- Create an API token from the Admin Center
+- For OAuth, register an OAuth client
+- Note your subdomain (e.g., `https://your-subdomain.zendesk.com`)
+
+### 4. Configure Integrations
+
+Use the Integration Management UI in the ITSM Integration Platform to add each sandbox:
+
+1. Log in as an admin or integrator
+2. Navigate to "Create Integration"
+3. Fill in the details for each integration:
+   - Name (e.g., "ServiceNow Dev", "Jira Sandbox", "Zendesk Test")
+   - Type (select the appropriate ITSM system)
+   - Base URL (the URL of your sandbox instance)
+   - Authentication method and credentials
+   - Configure endpoints based on the APIs you need to access
+
+### 5. Test & Verify Connections
+
+After creating each integration:
+1. Use the "Check Health" feature to verify connectivity
+2. Create test requests to ensure data retrieval works correctly
+3. Monitor the health dashboard to ensure stable connections
+
+### 6. Sample Configuration
+
+Here's a sample configuration for each system:
+
+#### ServiceNow Example
+```json
+{
+  "name": "ServiceNow Sandbox",
+  "type": "servicenow",
+  "config": {
+    "baseUrl": "https://devXXXXX.service-now.com",
+    "auth": {
+      "type": "basic",
+      "credentials": {
+        "username": "admin",
+        "password": "your-password"
+      }
+    }
+  },
+  "endpoints": [
+    {
+      "name": "getIncidents",
+      "path": "/api/now/table/incident",
+      "method": "GET"
+    }
+  ]
+}
+```
+
+#### Jira Example
+```json
+{
+  "name": "Jira Sandbox",
+  "type": "jira",
+  "config": {
+    "baseUrl": "https://your-instance.atlassian.net",
+    "auth": {
+      "type": "token",
+      "credentials": {
+        "email": "your-email@example.com",
+        "apiToken": "your-api-token"
+      }
+    }
+  },
+  "endpoints": [
+    {
+      "name": "getIssues",
+      "path": "/rest/api/3/search",
+      "method": "GET"
+    }
+  ]
+}
+```
+
+#### Zendesk Example
+```json
+{
+  "name": "Zendesk Sandbox",
+  "type": "zendesk",
+  "config": {
+    "baseUrl": "https://your-subdomain.zendesk.com",
+    "auth": {
+      "type": "token",
+      "credentials": {
+        "email": "your-email@example.com/token",
+        "apiToken": "your-api-token"
+      }
+    }
+  },
+  "endpoints": [
+    {
+      "name": "getTickets",
+      "path": "/api/v2/tickets",
+      "method": "GET"
+    }
+  ]
+}
+```
+
+This standardized approach allows you to quickly connect to multiple ITSM sandboxes while managing all connections through a single interface.
 
 ## Development
 

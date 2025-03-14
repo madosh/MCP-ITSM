@@ -1,4 +1,4 @@
-#!/bin/bash
+ #!/bin/bash
 
 echo "Pushing Smithery MCP tools integration to GitHub..."
 

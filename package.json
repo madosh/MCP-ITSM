@@ -1,0 +1,21 @@
+{
+  "name": "mcp-itsm",
+  "version": "1.0.0",
+  "description": "Model Context Protocol for ITSM Tools",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "itsm",
+    "llm",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+} 

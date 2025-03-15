@@ -4,16 +4,16 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy package.json and package-lock.json
-COPY backend/package*.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy backend source
-COPY backend/ ./
+# Copy the rest of the application
+COPY . .
 
-# Expose the port the app runs on
-EXPOSE 5000
+# Expose the port if needed
+# EXPOSE 3000
 
 # Command to run the application
-CMD ["npm", "start"] 
+CMD ["node", "index.js"] 

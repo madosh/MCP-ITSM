@@ -17,4 +17,8 @@ startCommand:
   commandFunction:
     # A function that produces the CLI command to start the MCP on stdio.
     |-
-    (config) => ({ command: 'npm', args: ['start'], env: { API_KEY: config.apiKey } }) 
+    (config) => ({ command: 'npm', args: ['start'], env: { API_KEY: config.apiKey } })
+
+# Define the functions to expose to the LLM
+functions:
+  path: ./tools.json 

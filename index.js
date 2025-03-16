@@ -16,96 +16,14 @@ let nextTicketId = 1000;
 rl.on('line', async (line) => {
   try {
     const message = JSON.parse(line);
-    console.error(`Received message type: ${message.type}`);
+    console.error(`Received message: ${line}`);
     
-    // Handle standard function calls (OpenAI format)
-    if (message.type === 'function') {
-      const { name, arguments: args } = message;
-      let result;
-      
-      console.error(`Processing function call: ${name}`);
-      const params = typeof args === 'string' ? JSON.parse(args) : args;
-      
-      switch (name) {
-        case 'create_ticket':
-          result = handleCreateTicket(params);
-          break;
-        case 'get_ticket':
-          result = handleGetTicket(params);
-          break;
-        case 'update_ticket':
-          result = handleUpdateTicket(params);
-          break;
-        case 'list_tickets':
-          result = handleListTickets(params);
-          break;
-        case 'assign_ticket':
-          result = handleAssignTicket(params);
-          break;
-        case 'add_comment':
-          result = handleAddComment(params);
-          break;
-        case 'search_knowledge_base':
-          result = handleSearchKnowledgeBase(params);
-          break;
-        default:
-          result = { error: `Unknown function: ${name}` };
-      }
-      
-      // Send response back in standard format
-      console.log(JSON.stringify(result));
-    }
-    // Handle function calls (Smithery format)
-    else if (message.type === 'function_call') {
-      const { name, arguments: params } = message.function_call;
-      let result;
-      
-      console.error(`Received function call: ${name}`);
-      
-      switch (name) {
-        case 'create_ticket':
-          result = handleCreateTicket(params);
-          break;
-        case 'get_ticket':
-          result = handleGetTicket(params);
-          break;
-        case 'update_ticket':
-          result = handleUpdateTicket(params);
-          break;
-        case 'list_tickets':
-          result = handleListTickets(params);
-          break;
-        case 'assign_ticket':
-          result = handleAssignTicket(params);
-          break;
-        case 'add_comment':
-          result = handleAddComment(params);
-          break;
-        case 'search_knowledge_base':
-          result = handleSearchKnowledgeBase(params);
-          break;
-        default:
-          result = { error: `Unknown function: ${name}` };
-      }
-      
-      // Send response back in Smithery format
-      const response = {
-        type: 'function_call_response',
-        id: message.id,
-        function_call: {
-          name: name,
-          response: result
-        }
-      };
-      
-      console.log(JSON.stringify(response));
-    }
-    // For backward compatibility, also handle tool_call format
-    else if (message.type === 'tool_call') {
+    // Handle MCP tool calls
+    if (message.type === 'tool_call') {
       const { name, parameters } = message.data;
       let result;
       
-      console.error(`Received tool call: ${name}`);
+      console.error(`Processing tool call: ${name}`);
       
       switch (name) {
         case 'create_ticket':
@@ -133,10 +51,63 @@ rl.on('line', async (line) => {
           result = { error: `Unknown tool: ${name}` };
       }
       
-      // Send response back
+      // Send response back in MCP format
       const response = {
         type: 'tool_response',
         id: message.id,
+        data: result
+      };
+      
+      console.log(JSON.stringify(response));
+    }
+    // For backward compatibility, also handle function calls
+    else if (message.type === 'function' || message.type === 'function_call') {
+      console.error(`Received non-MCP message type: ${message.type}`);
+      let name, params, id;
+      
+      if (message.type === 'function') {
+        name = message.name;
+        params = typeof message.arguments === 'string' ? 
+          JSON.parse(message.arguments) : message.arguments;
+        id = message.id || 'function-call';
+      } else {
+        name = message.function_call.name;
+        params = message.function_call.arguments;
+        id = message.id || 'function-call';
+      }
+      
+      let result;
+      
+      switch (name) {
+        case 'create_ticket':
+          result = handleCreateTicket(params);
+          break;
+        case 'get_ticket':
+          result = handleGetTicket(params);
+          break;
+        case 'update_ticket':
+          result = handleUpdateTicket(params);
+          break;
+        case 'list_tickets':
+          result = handleListTickets(params);
+          break;
+        case 'assign_ticket':
+          result = handleAssignTicket(params);
+          break;
+        case 'add_comment':
+          result = handleAddComment(params);
+          break;
+        case 'search_knowledge_base':
+          result = handleSearchKnowledgeBase(params);
+          break;
+        default:
+          result = { error: `Unknown function: ${name}` };
+      }
+      
+      // Convert to MCP format for consistency
+      const response = {
+        type: 'tool_response',
+        id: id,
         data: result
       };
       

@@ -19,6 +19,6 @@ startCommand:
     |-
     (config) => ({ command: 'npm', args: ['start'], env: { API_KEY: config.apiKey } })
 
-# Define the functions to expose to the LLM
-functions:
+# Define the tools to expose to the LLM
+tools:
   path: ./tools.json 

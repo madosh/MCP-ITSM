@@ -1,182 +1,184 @@
-[
-  {
-    "name": "create_ticket",
-    "description": "Create a new support ticket in the appropriate ITSM system",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string",
-          "description": "Title of the ticket"
+{
+  "tools": [
+    {
+      "name": "create_ticket",
+      "description": "Create a new support ticket in the appropriate ITSM system",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the ticket"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the issue"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"],
+            "description": "Priority level of the ticket"
+          },
+          "system": {
+            "type": "string",
+            "enum": ["servicenow", "jira", "zendesk"],
+            "description": "ITSM system to create the ticket in (optional)"
+          }
         },
-        "description": {
-          "type": "string",
-          "description": "Detailed description of the issue"
+        "required": ["title", "description"]
+      }
+    },
+    {
+      "name": "get_ticket",
+      "description": "Retrieve details of an existing ticket",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ticket_id": {
+            "type": "string",
+            "description": "ID of the ticket to retrieve"
+          },
+          "system": {
+            "type": "string",
+            "enum": ["servicenow", "jira", "zendesk"],
+            "description": "ITSM system to retrieve the ticket from (optional)"
+          }
         },
-        "priority": {
-          "type": "string",
-          "enum": ["low", "medium", "high", "critical"],
-          "description": "Priority level of the ticket"
+        "required": ["ticket_id"]
+      }
+    },
+    {
+      "name": "update_ticket",
+      "description": "Update an existing support ticket",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ticket_id": {
+            "type": "string",
+            "description": "ID of the ticket to update"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["open", "in_progress", "resolved", "closed"],
+            "description": "New status for the ticket"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"],
+            "description": "New priority level for the ticket"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Comment to add to the ticket"
+          },
+          "system": {
+            "type": "string",
+            "enum": ["servicenow", "jira", "zendesk"],
+            "description": "ITSM system where the ticket exists (optional)"
+          }
         },
-        "system": {
-          "type": "string",
-          "enum": ["servicenow", "jira", "zendesk"],
-          "description": "ITSM system to create the ticket in (optional)"
-        }
-      },
-      "required": ["title", "description"]
-    }
-  },
-  {
-    "name": "get_ticket",
-    "description": "Retrieve details of an existing ticket",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "ticket_id": {
-          "type": "string",
-          "description": "ID of the ticket to retrieve"
-        },
-        "system": {
-          "type": "string",
-          "enum": ["servicenow", "jira", "zendesk"],
-          "description": "ITSM system to retrieve the ticket from (optional)"
-        }
-      },
-      "required": ["ticket_id"]
-    }
-  },
-  {
-    "name": "update_ticket",
-    "description": "Update an existing support ticket",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "ticket_id": {
-          "type": "string",
-          "description": "ID of the ticket to update"
-        },
-        "status": {
-          "type": "string",
-          "enum": ["open", "in_progress", "resolved", "closed"],
-          "description": "New status for the ticket"
-        },
-        "priority": {
-          "type": "string",
-          "enum": ["low", "medium", "high", "critical"],
-          "description": "New priority level for the ticket"
-        },
-        "comment": {
-          "type": "string",
-          "description": "Comment to add to the ticket"
-        },
-        "system": {
-          "type": "string",
-          "enum": ["servicenow", "jira", "zendesk"],
-          "description": "ITSM system where the ticket exists (optional)"
-        }
-      },
-      "required": ["ticket_id"]
-    }
-  },
-  {
-    "name": "list_tickets",
-    "description": "List tickets with optional filtering",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": ["open", "in_progress", "resolved", "closed", "all"],
-          "description": "Filter tickets by status"
-        },
-        "assigned_to": {
-          "type": "string",
-          "description": "Filter tickets by assignee"
-        },
-        "limit": {
-          "type": "integer",
-          "description": "Maximum number of tickets to return"
-        },
-        "system": {
-          "type": "string",
-          "enum": ["servicenow", "jira", "zendesk"],
-          "description": "ITSM system to list tickets from (optional)"
+        "required": ["ticket_id"]
+      }
+    },
+    {
+      "name": "list_tickets",
+      "description": "List tickets with optional filtering",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["open", "in_progress", "resolved", "closed", "all"],
+            "description": "Filter tickets by status"
+          },
+          "assigned_to": {
+            "type": "string",
+            "description": "Filter tickets by assignee"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of tickets to return"
+          },
+          "system": {
+            "type": "string",
+            "enum": ["servicenow", "jira", "zendesk"],
+            "description": "ITSM system to list tickets from (optional)"
+          }
         }
       }
+    },
+    {
+      "name": "assign_ticket",
+      "description": "Assign a ticket to a user",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ticket_id": {
+            "type": "string",
+            "description": "ID of the ticket to assign"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "ID or username of the user to assign the ticket to"
+          },
+          "system": {
+            "type": "string",
+            "enum": ["servicenow", "jira", "zendesk"],
+            "description": "ITSM system where the ticket exists (optional)"
+          }
+        },
+        "required": ["ticket_id", "user_id"]
+      }
+    },
+    {
+      "name": "add_comment",
+      "description": "Add a comment to an existing ticket",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ticket_id": {
+            "type": "string",
+            "description": "ID of the ticket to comment on"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Comment text to add to the ticket"
+          },
+          "internal": {
+            "type": "boolean",
+            "description": "Whether the comment is internal (not visible to end users)"
+          },
+          "system": {
+            "type": "string",
+            "enum": ["servicenow", "jira", "zendesk"],
+            "description": "ITSM system where the ticket exists (optional)"
+          }
+        },
+        "required": ["ticket_id", "comment"]
+      }
+    },
+    {
+      "name": "search_knowledge_base",
+      "description": "Search for articles related to an issue",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for knowledge base articles"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of articles to return"
+          },
+          "system": {
+            "type": "string",
+            "enum": ["servicenow", "jira", "zendesk"],
+            "description": "ITSM system knowledge base to search (optional)"
+          }
+        },
+        "required": ["query"]
+      }
     }
-  },
-  {
-    "name": "assign_ticket",
-    "description": "Assign a ticket to a user",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "ticket_id": {
-          "type": "string",
-          "description": "ID of the ticket to assign"
-        },
-        "user_id": {
-          "type": "string",
-          "description": "ID or username of the user to assign the ticket to"
-        },
-        "system": {
-          "type": "string",
-          "enum": ["servicenow", "jira", "zendesk"],
-          "description": "ITSM system where the ticket exists (optional)"
-        }
-      },
-      "required": ["ticket_id", "user_id"]
-    }
-  },
-  {
-    "name": "add_comment",
-    "description": "Add a comment to an existing ticket",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "ticket_id": {
-          "type": "string",
-          "description": "ID of the ticket to comment on"
-        },
-        "comment": {
-          "type": "string",
-          "description": "Comment text to add to the ticket"
-        },
-        "internal": {
-          "type": "boolean",
-          "description": "Whether the comment is internal (not visible to end users)"
-        },
-        "system": {
-          "type": "string",
-          "enum": ["servicenow", "jira", "zendesk"],
-          "description": "ITSM system where the ticket exists (optional)"
-        }
-      },
-      "required": ["ticket_id", "comment"]
-    }
-  },
-  {
-    "name": "search_knowledge_base",
-    "description": "Search for articles related to an issue",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "query": {
-          "type": "string",
-          "description": "Search query for knowledge base articles"
-        },
-        "limit": {
-          "type": "integer",
-          "description": "Maximum number of articles to return"
-        },
-        "system": {
-          "type": "string",
-          "enum": ["servicenow", "jira", "zendesk"],
-          "description": "ITSM system knowledge base to search (optional)"
-        }
-      },
-      "required": ["query"]
-    }
-  }
-] 
+  ]
+} 

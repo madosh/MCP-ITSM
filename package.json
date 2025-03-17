@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug-mcp": "npx @modelcontextprotocol/inspector node index.js"
   },
   "keywords": [
     "mcp",
@@ -13,9 +14,24 @@
     "llm",
     "ai"
   ],
-  "author": "",
+  "author": "MCP ITSM Project Contributors",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.6.2"
+  },
+  "mcp": {
+    "toolsPath": "./tools.json",
+    "entryPoint": "node index.js",
+    "version": "1.0.0",
+    "supportedTransports": ["stdio", "http"],
+    "authentication": {
+      "type": "apiKey",
+      "keyName": "x-api-key",
+      "in": "header"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/mcp-itsm"
   }
 } 

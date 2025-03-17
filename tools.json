@@ -21,7 +21,7 @@
           },
           "system": {
             "type": "string",
-            "enum": ["servicenow", "jira", "zendesk"],
+            "enum": ["servicenow", "jira", "zendesk", "ivanti_neurons", "cherwell"],
             "description": "ITSM system to create the ticket in (optional)"
           }
         },
@@ -40,7 +40,7 @@
           },
           "system": {
             "type": "string",
-            "enum": ["servicenow", "jira", "zendesk"],
+            "enum": ["servicenow", "jira", "zendesk", "ivanti_neurons", "cherwell"],
             "description": "ITSM system to retrieve the ticket from (optional)"
           }
         },
@@ -73,7 +73,7 @@
           },
           "system": {
             "type": "string",
-            "enum": ["servicenow", "jira", "zendesk"],
+            "enum": ["servicenow", "jira", "zendesk", "ivanti_neurons", "cherwell"],
             "description": "ITSM system where the ticket exists (optional)"
           }
         },
@@ -101,7 +101,7 @@
           },
           "system": {
             "type": "string",
-            "enum": ["servicenow", "jira", "zendesk"],
+            "enum": ["servicenow", "jira", "zendesk", "ivanti_neurons", "cherwell"],
             "description": "ITSM system to list tickets from (optional)"
           }
         }
@@ -123,7 +123,7 @@
           },
           "system": {
             "type": "string",
-            "enum": ["servicenow", "jira", "zendesk"],
+            "enum": ["servicenow", "jira", "zendesk", "ivanti_neurons", "cherwell"],
             "description": "ITSM system where the ticket exists (optional)"
           }
         },
@@ -150,7 +150,7 @@
           },
           "system": {
             "type": "string",
-            "enum": ["servicenow", "jira", "zendesk"],
+            "enum": ["servicenow", "jira", "zendesk", "ivanti_neurons", "cherwell"],
             "description": "ITSM system where the ticket exists (optional)"
           }
         },
@@ -173,7 +173,7 @@
           },
           "system": {
             "type": "string",
-            "enum": ["servicenow", "jira", "zendesk"],
+            "enum": ["servicenow", "jira", "zendesk", "ivanti_neurons", "cherwell"],
             "description": "ITSM system knowledge base to search (optional)"
           }
         },

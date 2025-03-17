@@ -1,350 +1,199 @@
-# ITSM Integration Platform
+# MCP ITSM Integration
 
-A comprehensive platform for integrating with various IT Service Management (ITSM) systems through a unified API. This repository contains the backend API, client application, monitoring setup, and documentation.
-
-## Project Overview
-
-The ITSM Integration Platform is a comprehensive solution designed to unify access to diverse IT Service Management systems through a single, standardized API. It solves the common challenge organizations face when working with multiple ITSM tools (like Jira, ServiceNow, and Zendesk) by providing a centralized interface that handles authentication, request routing, response normalization, and health monitoring across all integrated systems. The platform features a React-based client application with role-based access control, a robust Node.js/Express backend with MongoDB for persistence, and a complete monitoring stack using Prometheus and Grafana to ensure reliability and performance.
-
-At its core, the platform implements a modular architecture where the Integration Management Module acts as a bridge between client applications and various ITSM systems, abstracting away the complexity of dealing with different APIs and authentication methods. The system provides comprehensive health monitoring of all integrations, allowing organizations to quickly identify and resolve connectivity issues. The platform supports multiple authentication mechanisms, includes detailed documentation, and features an intuitive dashboard that provides real-time visibility into integration status. This enables teams to manage their service management workflows more efficiently while reducing the technical overhead of maintaining multiple direct integrations with various ITSM providers.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Deployment](#deployment)
-- [Client Application](#client-application)
-- [API Documentation](#api-documentation)
-- [Monitoring](#monitoring)
-- [Development](#development)
-- [Connecting to ITSM Sandboxes](#connecting-to-itsm-sandboxes)
-- [License](#license)
+A Model Context Protocol (MCP) implementation for IT Service Management (ITSM) tools, designed to work with Smithery.
 
 ## Overview
 
-The ITSM Integration Platform provides a unified interface for connecting to and interacting with various ITSM tools like Jira, ServiceNow, Zendesk, and others. It handles authentication, request routing, response normalization, and health monitoring.
+This project provides a unified interface for LLMs to interact with multiple ITSM systems (ServiceNow, Jira, Zendesk, Ivanti Neurons for ITSM, and Cherwell) using the Model Context Protocol (MCP). Instead of requiring LLMs to learn different APIs for each ITSM system, this integration provides a standardized set of tools that work across all systems.
 
-### Key Features
+![MCP ITSM Architecture](./diagrams/mcp_itsm_architecture.png)
 
-- **Unified API**: Interact with multiple ITSM systems through a single API
-- **Role-based Access Control**: Admin, integrator, and user roles with appropriate permissions
-- **Health Monitoring**: Automatic checking of integration health and status reporting
-- **Flexible Configuration**: Support for various authentication methods and endpoints
-- **User Management**: Full user lifecycle management with secure authentication
+## MCP Server Information
 
-## Architecture
+This is an MCP-compliant server that implements the Model Context Protocol specification. It provides a standardized interface for Large Language Models to interact with multiple ITSM systems through a unified set of tools.
 
-The platform consists of:
+### MCP Compatibility
+- **Protocol Version**: MCP 1.0
+- **Tool Format**: JSON Schema compliant
+- **Runtime**: Node.js
+- **Transport**: HTTP and stdio
+- **Authentication**: API key
 
-- **Backend**: Node.js Express REST API with MongoDB database
-- **Frontend**: React-based client application with Bootstrap UI
-- **Monitoring**: Prometheus/Grafana stack for metrics and monitoring
-- **Documentation**: Comprehensive API documentation
+### MCP Server Usage
+The server can be used directly with any MCP-compatible client, including:
+- MCP Inspector CLI tool
+- Claude via MCP integration
+- Any LLM with MCP support
 
-## Deployment
-
-The application is deployed on Smithery and can be accessed using:
-
+To inspect the server locally:
 ```bash
-npx -y @smithery/cli@latest run @madosh/mcp-itsm --config "{\"apiKey\":\"123\"}"
+npx @modelcontextprotocol/inspector node index.js
 ```
 
-This will establish a WebSocket connection to the deployed service at `https://server.smithery.ai/@madosh/mcp-itsm`.
+## Features
 
-### Docker Deployment
+- **Unified Interface**: Consistent tool definitions across all ITSM systems
+- **Intelligent Routing**: Automatically routes requests to the appropriate ITSM system
+- **Context Management**: Maintains context across interactions
+- **MCP Compliant**: Follows the Model Context Protocol specification
+- **Smithery Integration**: Designed to work seamlessly with Smithery
 
-The application can also be deployed using Docker:
+## Prerequisites
 
-```bash
-docker build -t itsm-integration-platform .
-docker run -p 5000:5000 -e NODE_ENV=production -e PORT=5000 -e MONGODB_URI=your-mongodb-uri -e JWT_SECRET=your-jwt-secret itsm-integration-platform
-```
+- Node.js (v14 or higher)
+- Smithery CLI
+- Access to ITSM systems (ServiceNow, Jira, Zendesk, Ivanti Neurons for ITSM, Cherwell)
 
-## Client Application
-
-The React-based client application provides a user-friendly interface for managing integrations and users.
-
-### Features
-
-- **Dashboard**: Overview of integration status and health
-- **Integrations Management**: Create, view, update, and delete integrations
-- **User Management**: Admin-only user management interface
-- **Authentication**: Secure login with JWT tokens
-- **Role-based Access**: Different views and permissions based on user role
-
-### Running the Client Application
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-The client application will be available at http://localhost:3000 and will connect to the API at the URL specified in the proxy configuration.
-
-## API Documentation
-
-Comprehensive API documentation is available in the [docs/api-documentation.md](docs/api-documentation.md) file. It includes:
-
-- Authentication endpoints
-- User management endpoints
-- Integration management endpoints
-- Request/response examples
-- Error handling
-
-### API Base URL
-
-```
-https://server.smithery.ai/@madosh/mcp-itsm
-```
-
-### Example API Usage
-
-```javascript
-const axios = require('axios');
-
-async function example() {
-  // Login to get token
-  const authResponse = await axios.post('https://server.smithery.ai/@madosh/mcp-itsm/api/auth/login', {
-    email: 'admin@example.com',
-    password: 'adminpassword'
-  });
-  
-  const token = authResponse.data.token;
-  
-  // Get all integrations
-  const integrationsResponse = await axios.get('https://server.smithery.ai/@madosh/mcp-itsm/api/integration', {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
-  
-  console.log('Integrations:', integrationsResponse.data);
-}
-```
-
-## Monitoring
-
-The monitoring setup provides real-time visibility into the health and performance of the platform.
-
-### Monitoring Features
-
-- **API Performance Metrics**: Response times, error rates, and throughput
-- **Integration Health**: Status of connected integrations
-- **Resource Utilization**: CPU, memory, and network usage
-- **Alerting**: Critical and warning alerts for various conditions
-
-### Setting Up Monitoring
-
-Detailed monitoring setup instructions are available in the [monitoring/README.md](monitoring/README.md) file. The monitoring stack includes:
-
-- Prometheus for metrics collection
-- Grafana for visualization
-- Alert Manager for notifications
-
-## Connecting to ITSM Sandboxes
-
-The easiest way to connect the ITSM Integration Platform with sandbox environments of different ITSM tools is through a standardized approach:
-
-### 1. Create Developer Accounts
-
-Sign up for developer accounts on each ITSM platform:
-- **ServiceNow Developer Program**: https://developer.servicenow.com/
-- **Atlassian (Jira) Developer Program**: https://developer.atlassian.com/
-- **Zendesk Developer Program**: https://developer.zendesk.com/
-
-### 2. Set Up Sandbox Instances
-
-Each platform provides different methods for creating sandbox environments:
-- **ServiceNow**: Create a Personal Developer Instance (PDI) from the developer portal
-- **Jira**: Set up a Cloud Development site or use the Atlassian Cloud Development environment
-- **Zendesk**: Create a trial account or sandbox instance from the developer portal
-
-### 3. Generate API Credentials
-
-For each platform, generate the necessary API credentials:
-
-#### ServiceNow
-- Create a Service Account or OAuth application
-- For basic testing, you can use Basic Authentication with admin credentials
-- For production, use OAuth with client ID and client secret
-
-#### Jira
-- Create an API token from your Atlassian account
-- For cloud instances, create a OAuth application
-- Note the base URL of your instance (e.g., `https://your-instance.atlassian.net`)
-
-#### Zendesk
-- Create an API token from the Admin Center
-- For OAuth, register an OAuth client
-- Note your subdomain (e.g., `https://your-subdomain.zendesk.com`)
-
-### 4. Configure Integrations
-
-Use the Integration Management UI in the ITSM Integration Platform to add each sandbox:
-
-1. Log in as an admin or integrator
-2. Navigate to "Create Integration"
-3. Fill in the details for each integration:
-   - Name (e.g., "ServiceNow Dev", "Jira Sandbox", "Zendesk Test")
-   - Type (select the appropriate ITSM system)
-   - Base URL (the URL of your sandbox instance)
-   - Authentication method and credentials
-   - Configure endpoints based on the APIs you need to access
-
-### 5. Test & Verify Connections
-
-After creating each integration:
-1. Use the "Check Health" feature to verify connectivity
-2. Create test requests to ensure data retrieval works correctly
-3. Monitor the health dashboard to ensure stable connections
-
-### 6. Sample Configuration
-
-Here's a sample configuration for each system:
-
-#### ServiceNow Example
-```json
-{
-  "name": "ServiceNow Sandbox",
-  "type": "servicenow",
-  "config": {
-    "baseUrl": "https://devXXXXX.service-now.com",
-    "auth": {
-      "type": "basic",
-      "credentials": {
-        "username": "admin",
-        "password": "your-password"
-      }
-    }
-  },
-  "endpoints": [
-    {
-      "name": "getIncidents",
-      "path": "/api/now/table/incident",
-      "method": "GET"
-    }
-  ]
-}
-```
-
-#### Jira Example
-```json
-{
-  "name": "Jira Sandbox",
-  "type": "jira",
-  "config": {
-    "baseUrl": "https://your-instance.atlassian.net",
-    "auth": {
-      "type": "token",
-      "credentials": {
-        "email": "your-email@example.com",
-        "apiToken": "your-api-token"
-      }
-    }
-  },
-  "endpoints": [
-    {
-      "name": "getIssues",
-      "path": "/rest/api/3/search",
-      "method": "GET"
-    }
-  ]
-}
-```
-
-#### Zendesk Example
-```json
-{
-  "name": "Zendesk Sandbox",
-  "type": "zendesk",
-  "config": {
-    "baseUrl": "https://your-subdomain.zendesk.com",
-    "auth": {
-      "type": "token",
-      "credentials": {
-        "email": "your-email@example.com/token",
-        "apiToken": "your-api-token"
-      }
-    }
-  },
-  "endpoints": [
-    {
-      "name": "getTickets",
-      "path": "/api/v2/tickets",
-      "method": "GET"
-    }
-  ]
-}
-```
-
-This standardized approach allows you to quickly connect to multiple ITSM sandboxes while managing all connections through a single interface.
-
-## Development
-
-### Prerequisites
-
-- Node.js v14+
-- MongoDB
-- npm or yarn
-
-### Setup
+## Installation
 
 1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/mcp-itsm.git
+   cd mcp-itsm
+   ```
 
-```bash
-git clone https://github.com/yourusername/itsm-integration-platform.git
-cd itsm-integration-platform
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Configure your ITSM credentials (see Configuration section)
+
+4. Deploy to Smithery:
+   ```
+   smithery deploy
+   ```
+
+## Configuration
+
+### ITSM Credentials
+
+Create a `.env` file with your ITSM credentials:
+
+```
+# ServiceNow
+SERVICENOW_INSTANCE=your-instance
+SERVICENOW_USERNAME=your-username
+SERVICENOW_PASSWORD=your-password
+
+# Jira
+JIRA_URL=https://your-instance.atlassian.net
+JIRA_USERNAME=your-username
+JIRA_API_TOKEN=your-api-token
+
+# Zendesk
+ZENDESK_URL=https://your-instance.zendesk.com
+ZENDESK_EMAIL=your-email
+ZENDESK_API_TOKEN=your-api-token
+
+# Ivanti Neurons for ITSM
+IVANTI_URL=https://your-instance.ivanti.com
+IVANTI_CLIENT_ID=your-client-id
+IVANTI_CLIENT_SECRET=your-client-secret
+IVANTI_TENANT_ID=your-tenant-id
+
+# Cherwell
+CHERWELL_URL=https://your-instance.cherwell.com
+CHERWELL_CLIENT_ID=your-client-id
+CHERWELL_AUTH_MODE=internal
+CHERWELL_USERNAME=your-username
+CHERWELL_PASSWORD=your-password
 ```
 
-2. Install backend dependencies:
+### Smithery Configuration
 
-```bash
-cd backend
-npm install
+The `smithery.yaml` file configures how your tools are deployed to Smithery:
+
+```yaml
+name: mcp-itsm
+description: MCP ITSM Tools for ticket management across multiple systems
+version: 1.0.0
+tools: ./tools.json
+command: node index.js
 ```
 
-3. Install frontend dependencies:
+## Available Tools
 
-```bash
-cd ../frontend
-npm install
+This integration provides the following tools:
+
+- **create_ticket**: Create a new ticket in any ITSM system
+- **get_ticket**: Retrieve ticket details
+- **update_ticket**: Update an existing ticket
+- **list_tickets**: List tickets with filtering options
+- **assign_ticket**: Assign a ticket to a user
+- **add_comment**: Add a comment to a ticket
+- **search_knowledge_base**: Search the knowledge base for relevant articles
+
+See `tools.json` for the complete tool definitions.
+
+## Usage
+
+Once deployed to Smithery, LLMs can use these tools to interact with your ITSM systems. Here's an example of how an LLM might create a ticket:
+
+```
+User: "I need to report a bug in our accounting software"
+
+LLM: (Makes a tool call)
+{
+  "type": "tool_call",
+  "data": {
+    "name": "create_ticket",
+    "parameters": {
+      "title": "Bug in accounting software",
+      "description": "User reported an issue with the accounting software",
+      "priority": "medium",
+      "system": "jira"
+    }
+  }
+}
+
+Response:
+{
+  "type": "tool_response",
+  "data": {
+    "name": "create_ticket",
+    "content": {
+      "id": "ACCT-123",
+      "status": "open",
+      "url": "https://your-instance.atlassian.net/browse/ACCT-123"
+    }
+  }
+}
 ```
 
-4. Set up environment variables:
+## Debugging
 
-Create a `.env` file in the backend directory with:
+This project includes several debugging tools:
 
-```
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/itsm-platform
-JWT_SECRET=your-secret-key
-JWT_EXPIRE=30d
-```
+- `debug_smithery_mcp.bat`: Diagnoses MCP-specific issues with Smithery
+- `force_redeploy_smithery.bat`: Forces redeployment with MCP configuration
+- `test_tools.js`: Tests MCP tool calls locally
 
-5. Run the application in development mode:
+## Documentation
 
-```bash
-# In the backend directory
-npm run dev
+- [MCP Integration](./MCP_INTEGRATION.md): Details of the Model Context Protocol implementation
+- [MCP Quick Reference](./MCP_QUICK_REFERENCE.md): Quick reference guide for MCP concepts
+- [ITSM Systems Reference](./ITSM_SYSTEMS_REFERENCE.md): Detailed information about each supported ITSM system
+- [OpenAI to MCP Conversion](./OPENAI_TO_MCP_CONVERSION.md): Guide for converting from OpenAI function calling to MCP
 
-# In the frontend directory (in another terminal)
-npm start
-```
+## Diagrams
 
-### Testing
+- [MCP ITSM Architecture](./diagrams/mcp_itsm_architecture.png): Overall architecture of the integration
+- [System Fragmentation](./diagrams/system_fragmentation.png): The challenge of ITSM system fragmentation
+- [LLM Reasoning](./diagrams/llm_reasoning.png): How LLMs select the appropriate ITSM system
+- [Benefits Comparison](./diagrams/benefits_comparison.png): Comparison of traditional vs. MCP approach
+- [Smithery Integration](./diagrams/smithery_integration.png): How MCP integrates with Smithery
 
-```bash
-# Run backend tests
-cd backend
-npm test
+## Contributing
 
-# Run frontend tests
-cd frontend
-npm test
-```
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Resources
+
+- [Model Context Protocol](https://modelcontextprotocol.io)
+- [Smithery Documentation](https://docs.smithery.io)
+- [OpenAI Function Calling](https://platform.openai.com/docs/guides/function-calling)

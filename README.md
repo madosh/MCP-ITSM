@@ -197,3 +197,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Model Context Protocol](https://modelcontextprotocol.io)
 - [Smithery Documentation](https://docs.smithery.io)
 - [OpenAI Function Calling](https://platform.openai.com/docs/guides/function-calling)
+<a href="https://glama.ai/mcp/servers/hud80wep9g">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/hud80wep9g/badge" />
+</a>

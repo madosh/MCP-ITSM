@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP-ITSM System Architecture - Interactive Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            padding: 10px 20px;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .diagram-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .diagram-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .diagram-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .diagram-header h2 {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .diagram-header p {
+            font-size: 1.1em;
+            color: #6c757d;
+        }
+
+        .diagram-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 2px solid #333;
+        }
+
+        .color-frontend { background: #e1f5ff; }
+        .color-backend { background: #fff3e0; }
+        .color-database { background: #f1f8e9; }
+        .color-mcp { background: #fce4ec; }
+        .color-external { background: #f3e5f5; }
+
+        footer {
+            background: #343a40;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-tabs {
+                padding: 10px;
+            }
+
+            .nav-tab {
+                padding: 8px 16px;
+                font-size: 0.9em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .diagram-container {
+                padding: 15px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏗️ MCP-ITSM System Architecture</h1>
+            <p>Interactive System Design & Component Diagrams</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Detailed Diagrams</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">System Layers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">7</div>
+                <div class="stat-label">MCP Tools</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">23</div>
+                <div class="stat-label">API Routes</div>
+            </div>
+        </div>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-diagram="overview">📊 System Overview</button>
+            <button class="nav-tab" data-diagram="auth">🔐 Authentication</button>
+            <button class="nav-tab" data-diagram="ai-ticket">🤖 AI Ticket Flow</button>
+            <button class="nav-tab" data-diagram="validation">✅ Data Validation</button>
+            <button class="nav-tab" data-diagram="access-control">🛡️ Access Control</button>
+            <button class="nav-tab" data-diagram="database">💾 Database Schema</button>
+            <button class="nav-tab" data-diagram="state">⚛️ State Management</button>
+            <button class="nav-tab" data-diagram="mcp-tools">🔧 MCP Tools</button>
+            <button class="nav-tab" data-diagram="error-boundary">🚨 Error Handling</button>
+            <button class="nav-tab" data-diagram="api-cycle">🔄 API Lifecycle</button>
+        </nav>
+
+        <div class="content">
+            <!-- Overview Diagram -->
+            <div class="diagram-section active" id="overview">
+                <div class="diagram-header">
+                    <h2>System Overview Architecture</h2>
+                    <p>Complete system architecture showing all layers and interactions</p>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color color-frontend"></div>
+                        <span>Frontend Components</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-backend"></div>
+                        <span>Backend Services</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-database"></div>
+                        <span>Database Layer</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-mcp"></div>
+                        <span>MCP Server</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-external"></div>
+                        <span>External Systems</span>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+graph TB
+    subgraph "External Systems"
+        LLM[LLM/Claude API<br/>AI Processing]
+        SN[ServiceNow<br/>ITSM Platform]
+        JIRA[Jira<br/>ITSM Platform]
+        ZD[Zendesk<br/>ITSM Platform]
+    end
+
+    subgraph "Frontend Layer - React SPA"
+        Browser[User Browser]
+
+        subgraph "App Shell"
+            EB[ErrorBoundary<br/>Global Error Handler]
+            Router[React Router]
+            Header[Header Component]
+            Footer[Footer Component]
+        end
+
+        subgraph "Pages"
+            Login[Login Page]
+            Dashboard[Dashboard<br/>Integration Overview]
+            AIChat[LLMChatClient<br/>AI-Assisted Chat]
+            IntList[Integrations List]
+            IntDetail[Integration Detail]
+            Profile[User Profile]
+            UserMgmt[User Management<br/>Admin Only]
+        end
+
+        subgraph "Chat Components"
+            ChatMsg[ChatMessageList]
+            ChatInput[ChatInputForm]
+            TicketPreview[TicketPreviewPanel]
+        end
+
+        subgraph "Custom Hooks"
+            UseChatHistory[useChatHistory<br/>Message State]
+            UseContext[useConversationContext<br/>MCP Context State]
+        end
+
+        subgraph "Services"
+            AuthSvc[authService<br/>Login/Logout/Token]
+            IntSvc[integrationService<br/>CRUD Operations]
+            UserSvc[userService<br/>User Management]
+            LLMSvc[llmService<br/>AI Processing]
+            TicketSvc[ticketService<br/>Ticket Operations]
+        end
+
+        subgraph "Guards"
+            PrivateRoute[PrivateRoute<br/>Auth Guard]
+        end
+    end
+
+    subgraph "Backend Layer - Express.js API"
+        API[Express Server<br/>Port 5000]
+
+        subgraph "Middleware Stack"
+            CORS[CORS<br/>Cross-Origin]
+            Helmet[Helmet<br/>Security Headers]
+            Compression[Compression<br/>gzip]
+            Morgan[Morgan<br/>HTTP Logging]
+            RateLimit[Rate Limiter<br/>DDoS Protection]
+            AuthMW[authenticate()<br/>JWT Verification]
+            AuthzMW[authorize()<br/>Role Check]
+            ValMW[validate()<br/>Joi Schema]
+        end
+
+        subgraph "Route Handlers"
+            AuthRoutes[Auth Routes<br/>/api/auth]
+            ContextRoutes[Context Routes<br/>/api/context]
+            IntRoutes[Integration Routes<br/>/api/integration]
+            UserRoutes[User Routes<br/>/api/users]
+            HealthRoutes[Health Check<br/>/health]
+        end
+
+        subgraph "Validators"
+            AuthVal[authValidator<br/>login/register schemas]
+            CtxVal[contextValidator<br/>CRUD schemas]
+            IntVal[integrationValidator<br/>CRUD schemas]
+        end
+
+        subgraph "Models - Mongoose ODM"
+            UserModel[User Model<br/>Credentials/Roles]
+            CtxModel[Context Model<br/>MCP Context Storage]
+            IntModel[Integration Model<br/>ITSM Configs]
+        end
+
+        subgraph "Utils"
+            Logger[Winston Logger<br/>Structured Logging]
+            Config[Configuration<br/>Environment Variables]
+        end
+    end
+
+    subgraph "Database Layer"
+        MongoDB[(MongoDB<br/>Document Store)]
+
+        subgraph "Collections"
+            UsersCol[users<br/>Authentication Data]
+            ContextCol[contexts<br/>MCP Context Data]
+            IntCol[integrations<br/>ITSM Configurations]
+        end
+    end
+
+    subgraph "MCP Server Layer"
+        MCPServer[MCP Server<br/>index.js]
+
+        subgraph "MCP Protocol"
+            StdIO[stdio Transport<br/>JSON Messages]
+            ToolRegistry[Tool Registry<br/>7 ITSM Tools]
+        end
+
+        subgraph "MCP Tools"
+            CreateTicket[create_ticket<br/>Create new tickets]
+            GetTicket[get_ticket<br/>Retrieve ticket]
+            UpdateTicket[update_ticket<br/>Modify ticket]
+            ListTickets[list_tickets<br/>Query tickets]
+            AssignTicket[assign_ticket<br/>Assign to user]
+            AddComment[add_comment<br/>Add comments]
+            SearchKB[search_knowledge_base<br/>KB articles]
+        end
+    end
+
+    Browser --> EB
+    EB --> Router
+    Router --> Header
+    Router --> Footer
+    Router --> Login
+    Router --> Dashboard
+    Router --> AIChat
+    Router --> IntList
+    Router --> IntDetail
+    Router --> Profile
+    Router --> UserMgmt
+
+    AIChat --> ChatMsg
+    AIChat --> ChatInput
+    AIChat --> TicketPreview
+    AIChat --> UseChatHistory
+    AIChat --> UseContext
+
+    Dashboard --> IntSvc
+    AIChat --> LLMSvc
+    AIChat --> TicketSvc
+    AIChat --> IntSvc
+    Login --> AuthSvc
+    IntList --> IntSvc
+    IntDetail --> IntSvc
+    Profile --> UserSvc
+    UserMgmt --> UserSvc
+
+    PrivateRoute --> AuthSvc
+    Router --> PrivateRoute
+
+    AuthSvc -.HTTP.-> API
+    IntSvc -.HTTP.-> API
+    UserSvc -.HTTP.-> API
+    LLMSvc -.HTTP.-> API
+    TicketSvc -.HTTP.-> API
+
+    API --> CORS
+    CORS --> Helmet
+    Helmet --> Compression
+    Compression --> Morgan
+    Morgan --> RateLimit
+    RateLimit --> AuthMW
+    AuthMW --> AuthzMW
+    AuthzMW --> ValMW
+
+    ValMW --> AuthRoutes
+    ValMW --> ContextRoutes
+    ValMW --> IntRoutes
+    ValMW --> UserRoutes
+    ValMW --> HealthRoutes
+
+    AuthRoutes --> AuthVal
+    ContextRoutes --> CtxVal
+    IntRoutes --> IntVal
+
+    AuthRoutes --> UserModel
+    ContextRoutes --> CtxModel
+    IntRoutes --> IntModel
+    UserRoutes --> UserModel
+
+    AuthRoutes --> Logger
+    ContextRoutes --> Logger
+    IntRoutes --> Logger
+    UserRoutes --> Logger
+    AuthRoutes --> Config
+
+    UserModel --> MongoDB
+    CtxModel --> MongoDB
+    IntModel --> MongoDB
+    MongoDB --> UsersCol
+    MongoDB --> ContextCol
+    MongoDB --> IntCol
+
+    LLMSvc -.MCP Protocol.-> MCPServer
+    MCPServer --> StdIO
+    MCPServer --> ToolRegistry
+    ToolRegistry --> CreateTicket
+    ToolRegistry --> GetTicket
+    ToolRegistry --> UpdateTicket
+    ToolRegistry --> ListTickets
+    ToolRegistry --> AssignTicket
+    ToolRegistry --> AddComment
+    ToolRegistry --> SearchKB
+
+    CreateTicket -.API.-> SN
+    CreateTicket -.API.-> JIRA
+    CreateTicket -.API.-> ZD
+    GetTicket -.API.-> SN
+    GetTicket -.API.-> JIRA
+    GetTicket -.API.-> ZD
+    LLMSvc -.API.-> LLM
+
+    classDef frontend fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef backend fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef database fill:#f1f8e9,stroke:#33691e,stroke-width:2px
+    classDef mcp fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+
+    class Browser,EB,Router,Header,Footer,Login,Dashboard,AIChat,IntList,IntDetail,Profile,UserMgmt,ChatMsg,ChatInput,TicketPreview,UseChatHistory,UseContext,AuthSvc,IntSvc,UserSvc,LLMSvc,TicketSvc,PrivateRoute frontend
+    class API,CORS,Helmet,Compression,Morgan,RateLimit,AuthMW,AuthzMW,ValMW,AuthRoutes,ContextRoutes,IntRoutes,UserRoutes,HealthRoutes,AuthVal,CtxVal,IntVal,UserModel,CtxModel,IntModel,Logger,Config backend
+    class MongoDB,UsersCol,ContextCol,IntCol database
+    class MCPServer,StdIO,ToolRegistry,CreateTicket,GetTicket,UpdateTicket,ListTickets,AssignTicket,AddComment,SearchKB mcp
+    class LLM,SN,JIRA,ZD external
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Key Architecture Features</h3>
+                    <ul>
+                        <li><strong>3-Tier Architecture:</strong> Frontend (React), Backend (Express), Database (MongoDB)</li>
+                        <li><strong>MCP Integration:</strong> Model Context Protocol server for LLM interactions</li>
+                        <li><strong>Security Layers:</strong> JWT authentication, role-based authorization, input validation</li>
+                        <li><strong>Multi-ITSM Support:</strong> ServiceNow, Jira, Zendesk connectors</li>
+                        <li><strong>Error Handling:</strong> Global error boundary, structured logging</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Authentication Flow -->
+            <div class="diagram-section" id="auth">
+                <div class="diagram-header">
+                    <h2>Authentication & Authorization Flow</h2>
+                    <p>Complete user authentication and protected resource access flow</p>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant PrivateRoute
+    participant AuthService
+    participant API
+    participant AuthMW
+    participant UserModel
+    participant MongoDB
+
+    User->>Frontend: Navigate to /dashboard
+    Frontend->>PrivateRoute: Check authentication
+    PrivateRoute->>AuthService: isAuthenticated()
+    AuthService->>AuthService: Check localStorage token
+
+    alt No token
+        AuthService-->>PrivateRoute: false
+        PrivateRoute->>Frontend: Redirect to /login
+        Frontend->>User: Show login page
+        User->>Frontend: Enter credentials
+        Frontend->>API: POST /api/auth/login
+        API->>AuthMW: validate(loginSchema)
+        AuthMW->>UserModel: findOne({ email or username })
+        UserModel->>MongoDB: Query users collection
+        MongoDB-->>UserModel: User document
+        UserModel->>UserModel: comparePassword()
+        UserModel->>UserModel: JWT.sign()
+        UserModel-->>API: { token, user }
+        API-->>Frontend: 200 OK + token
+        Frontend->>AuthService: Save token to localStorage
+        Frontend->>User: Redirect to /dashboard
+    else Has token
+        AuthService-->>PrivateRoute: true
+        PrivateRoute->>Frontend: Render Dashboard
+        Frontend->>API: GET /api/integration (with token)
+        API->>AuthMW: authenticate()
+        AuthMW->>AuthMW: Verify JWT token
+        AuthMW->>UserModel: findById(decoded.id)
+        UserModel->>MongoDB: Query users
+        MongoDB-->>UserModel: User data
+        UserModel-->>AuthMW: User object
+        AuthMW->>AuthMW: Check isActive
+        AuthMW->>API: req.user = userObject
+        API->>AuthMW: authorize(['admin', 'integrator'])
+        AuthMW->>AuthMW: Check req.user.role
+        alt Authorized
+            AuthMW->>API: next()
+            API-->>Frontend: 200 OK + data
+            Frontend->>User: Display integrations
+        else Unauthorized
+            AuthMW-->>Frontend: 403 Forbidden
+            Frontend->>User: Show error message
+        end
+    end
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Authentication Features</h3>
+                    <ul>
+                        <li><strong>JWT Tokens:</strong> Secure token-based authentication with 1-day expiration</li>
+                        <li><strong>Password Hashing:</strong> bcryptjs for secure password storage</li>
+                        <li><strong>Role-Based Access:</strong> Admin, User, Integrator roles with granular permissions</li>
+                        <li><strong>Active Status Check:</strong> Disabled accounts are rejected even with valid tokens</li>
+                        <li><strong>Protected Routes:</strong> Frontend guards prevent unauthorized access</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- AI Ticket Creation -->
+            <div class="diagram-section" id="ai-ticket">
+                <div class="diagram-header">
+                    <h2>AI-Assisted Ticket Creation Flow</h2>
+                    <p>How the system processes natural language and creates ITSM tickets using AI</p>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+sequenceDiagram
+    participant User
+    participant AIChat
+    participant ChatInput
+    participant ChatMsg
+    participant TicketPreview
+    participant LLMService
+    participant TicketService
+    participant MCPServer
+    participant LLM
+    participant ITSM[ITSM System]
+
+    User->>AIChat: Type issue description
+    AIChat->>ChatInput: Render input form
+    User->>ChatInput: Submit message
+    ChatInput->>AIChat: handleSubmit(message)
+
+    AIChat->>ChatMsg: Add user message
+    ChatMsg->>User: Display message
+
+    AIChat->>LLMService: processTicketRequest()
+    LLMService->>LLMService: Extract priority keywords
+    LLMService->>LLMService: Detect category
+    LLMService->>LLMService: Parse summary/description
+
+    alt LLM Mode Enabled
+        LLMService->>MCPServer: Send MCP request
+        MCPServer->>LLM: Process with AI model
+        LLM-->>MCPServer: AI response
+        MCPServer-->>LLMService: Extracted ticket data
+    else Simulated Mode
+        LLMService->>LLMService: Rule-based extraction
+    end
+
+    LLMService-->>AIChat: { message, extractedData, confirmCreate }
+
+    AIChat->>ChatMsg: Add AI response
+    ChatMsg->>User: Display AI analysis
+
+    AIChat->>TicketPreview: Show extracted data
+    TicketPreview->>User: Display ticket preview
+
+    User->>TicketPreview: Click "Create Ticket"
+    TicketPreview->>AIChat: handleCreateTicket()
+
+    AIChat->>TicketService: createTicket(systemId, ticketData)
+    TicketService->>MCPServer: create_ticket tool call
+    MCPServer->>ITSM: API request
+    ITSM-->>MCPServer: Ticket created (ID: INC001)
+    MCPServer-->>TicketService: { ticketId, ticketUrl }
+    TicketService-->>AIChat: Success response
+
+    AIChat->>ChatMsg: Add success message
+    ChatMsg->>User: Display "Ticket created!"
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>AI Processing Features</h3>
+                    <ul>
+                        <li><strong>Natural Language Understanding:</strong> Processes user descriptions in plain English</li>
+                        <li><strong>Automatic Extraction:</strong> Detects priority, category, summary from context</li>
+                        <li><strong>Review Before Creation:</strong> Users can review and refine AI-extracted data</li>
+                        <li><strong>MCP Protocol:</strong> Standardized communication with LLM services</li>
+                        <li><strong>Fallback Mode:</strong> Rule-based processing when LLM is unavailable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Data Validation -->
+            <div class="diagram-section" id="validation">
+                <div class="diagram-header">
+                    <h2>Data Validation Flow</h2>
+                    <p>How incoming requests are validated using Joi schemas</p>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Route
+    participant ValidateMW[validate() Middleware]
+    participant JoiSchema
+    participant Handler[Route Handler]
+    participant Model
+    participant DB[MongoDB]
+
+    Client->>Route: POST /api/integration
+    Route->>ValidateMW: Intercept request
+    ValidateMW->>JoiSchema: schema.validate(req.body)
+
+    alt Validation Fails
+        JoiSchema-->>ValidateMW: { error: [...] }
+        ValidateMW->>ValidateMW: Format error details
+        ValidateMW-->>Client: 400 Bad Request<br/>{ errors: [{field, message}] }
+    else Validation Passes
+        JoiSchema-->>ValidateMW: { value: sanitizedData }
+        ValidateMW->>ValidateMW: req.body = sanitizedData
+        ValidateMW->>Handler: next()
+        Handler->>Model: new Integration(data)
+        Model->>Model: Mongoose validation
+        Model->>DB: Save document
+        DB-->>Model: Saved document
+        Model-->>Handler: Integration object
+        Handler-->>Client: 201 Created + data
+    end
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Validation Features</h3>
+                    <ul>
+                        <li><strong>Joi Schemas:</strong> Declarative validation for all API endpoints</li>
+                        <li><strong>Type Coercion:</strong> Automatic conversion (strings to numbers, etc.)</li>
+                        <li><strong>Unknown Field Removal:</strong> Strips unexpected data for security</li>
+                        <li><strong>Detailed Errors:</strong> Field-level error messages for better UX</li>
+                        <li><strong>Injection Prevention:</strong> Validates input format to prevent attacks</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Access Control -->
+            <div class="diagram-section" id="access-control">
+                <div class="diagram-header">
+                    <h2>Resource Access Control Flow</h2>
+                    <p>Decision tree for the canAccessResource() authorization logic</p>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+flowchart TD
+    Start[Incoming Request] --> Auth{Authenticated?}
+    Auth -->|No| Reject401[401 Unauthorized]
+    Auth -->|Yes| RoleCheck{Role-based<br/>Authorization?}
+
+    RoleCheck -->|Yes| HasRole{Has Required<br/>Role?}
+    HasRole -->|No| Reject403[403 Forbidden]
+    HasRole -->|Yes| ResourceCheck{Resource-based<br/>Authorization?}
+
+    RoleCheck -->|No| ResourceCheck
+
+    ResourceCheck -->|No| Allow[Allow Access]
+    ResourceCheck -->|Yes| LoadResource[Load Resource<br/>from DB]
+
+    LoadResource --> CheckAdmin{Is Admin?}
+    CheckAdmin -->|Yes| Allow
+    CheckAdmin -->|No| CheckOwner{Is Owner?}
+
+    CheckOwner -->|Yes| Allow
+    CheckOwner -->|No| CheckCreator{Is Creator?}
+
+    CheckCreator -->|Yes| Allow
+    CheckCreator -->|No| CheckManager{Is Manager?}
+
+    CheckManager -->|Yes| Allow
+    CheckManager -->|No| CheckPublic{Is Public?}
+
+    CheckPublic -->|Yes| Allow
+    CheckPublic -->|No| CheckAllowedUser{In Allowed<br/>Users?}
+
+    CheckAllowedUser -->|Yes| Allow
+    CheckAllowedUser -->|No| CheckAllowedRole{Has Allowed<br/>Role?}
+
+    CheckAllowedRole -->|Yes| Allow
+    CheckAllowedRole -->|No| Reject403
+
+    Allow --> ProcessRequest[Process Request]
+    ProcessRequest --> Response[Return Response]
+
+    style Start fill:#e3f2fd
+    style Auth fill:#fff3e0
+    style RoleCheck fill:#fff3e0
+    style ResourceCheck fill:#fff3e0
+    style Allow fill:#c8e6c9
+    style Reject401 fill:#ffcdd2
+    style Reject403 fill:#ffcdd2
+    style Response fill:#c8e6c9
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Access Control Features</h3>
+                    <ul>
+                        <li><strong>Multi-Level Authorization:</strong> Role-based + resource-based permissions</li>
+                        <li><strong>Admin Override:</strong> Admins always have full access</li>
+                        <li><strong>Ownership Checks:</strong> Creators and owners have special privileges</li>
+                        <li><strong>Manager System:</strong> Resources can have multiple managers</li>
+                        <li><strong>Public/Private Access:</strong> Flexible visibility controls</li>
+                        <li><strong>Allowed Users/Roles:</strong> Fine-grained access control lists</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Database Schema -->
+            <div class="diagram-section" id="database">
+                <div class="diagram-header">
+                    <h2>Database Schema & Relationships</h2>
+                    <p>MongoDB collections and their relationships</p>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+erDiagram
+    USER ||--o{ CONTEXT : owns
+    USER ||--o{ INTEGRATION : creates
+    USER }o--o{ INTEGRATION : manages
+    INTEGRATION ||--o{ ENDPOINT : contains
+    CONTEXT }o--|| INTEGRATION : "linked to"
+
+    USER {
+        ObjectId _id PK
+        string username UK
+        string email UK
+        string password "bcrypt hashed"
+        string firstName
+        string lastName
+        enum role "admin, user, integrator"
+        boolean isActive
+        datetime lastLogin
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    CONTEXT {
+        ObjectId _id PK
+        string name
+        string description
+        string source "ITSM system name"
+        string externalId "External ticket ID"
+        enum contentType "ticket, conversation, kb, process"
+        mixed data "Context payload"
+        mixed metadata
+        number ttl "Time-to-live seconds"
+        datetime expiresAt "Auto-delete time"
+        number size "Data size in bytes"
+        number version "Versioning"
+        enum status "active, archived, pending"
+        ObjectId owner FK
+        object accessControl
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    INTEGRATION {
+        ObjectId _id PK
+        string name UK
+        string description
+        enum type "servicenow, jira, zendesk, custom"
+        object config
+        array endpoints
+        boolean isActive
+        object health
+        ObjectId createdBy FK
+        array managers "Array of User IDs"
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    ENDPOINT {
+        string name
+        string path
+        enum method "GET, POST, PUT, DELETE, PATCH"
+        boolean enabled
+        mixed requestMapping
+        mixed responseMapping
+    }
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Database Features</h3>
+                    <ul>
+                        <li><strong>Mongoose ODM:</strong> Schema validation and relationships</li>
+                        <li><strong>Compound Indexes:</strong> (source, externalId), (owner, status) for fast queries</li>
+                        <li><strong>TTL Indexes:</strong> Auto-delete expired contexts</li>
+                        <li><strong>Unique Constraints:</strong> Email, username, integration names</li>
+                        <li><strong>Timestamps:</strong> Automatic createdAt/updatedAt tracking</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- State Management -->
+            <div class="diagram-section" id="state">
+                <div class="diagram-header">
+                    <h2>Component State Management</h2>
+                    <p>LLMChatClient component lifecycle and state transitions</p>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+stateDiagram-v2
+    [*] --> Initializing: Component Mount
+
+    Initializing --> LoadingIntegrations: useEffect()
+    LoadingIntegrations --> IntegrationsLoaded: Success
+    LoadingIntegrations --> Error: API Failure
+
+    IntegrationsLoaded --> Idle: Ready
+    Error --> Idle: User Dismisses
+
+    state Idle {
+        [*] --> NoMessage
+        NoMessage --> TypingMessage: User Types
+        TypingMessage --> MessageReady: Has Text
+        MessageReady --> NoMessage: Clear Input
+    }
+
+    MessageReady --> ProcessingLLM: Submit (LLM Mode)
+    MessageReady --> ProcessingDirect: Submit (Direct Mode)
+
+    state ProcessingLLM {
+        [*] --> CallingLLM
+        CallingLLM --> ExtractingData
+        ExtractingData --> ShowingPreview
+    }
+
+    state ProcessingDirect {
+        [*] --> CreatingTicket
+        CreatingTicket --> TicketCreated
+    }
+
+    ShowingPreview --> AwaitingConfirmation: Display Preview
+
+    state AwaitingConfirmation {
+        [*] --> Previewing
+        Previewing --> Refining: User Clicks Refine
+        Previewing --> ConfirmedCreate: User Clicks Create
+    }
+
+    Refining --> Idle: Dismiss Preview
+    ConfirmedCreate --> CreatingFromExtracted: API Call
+    CreatingFromExtracted --> TicketCreated: Success
+    CreatingFromExtracted --> Error: Failure
+
+    TicketCreated --> Idle: Show Confirmation
+    Error --> Idle: Show Error
+
+    Idle --> [*]: Component Unmount
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>State Management Features</h3>
+                    <ul>
+                        <li><strong>Custom Hooks:</strong> useChatHistory, useConversationContext for separation of concerns</li>
+                        <li><strong>Mode Switching:</strong> Toggle between LLM-assisted and direct mode</li>
+                        <li><strong>Error Recovery:</strong> Graceful error handling returns to idle state</li>
+                        <li><strong>Preview System:</strong> Review AI-extracted data before submission</li>
+                        <li><strong>Message Persistence:</strong> Chat history maintained in component state</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- MCP Tools -->
+            <div class="diagram-section" id="mcp-tools">
+                <div class="diagram-header">
+                    <h2>MCP Server Tool Execution Flow</h2>
+                    <p>How MCP tools process requests and interact with ITSM systems</p>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+sequenceDiagram
+    participant Client[LLM/Client]
+    participant MCP[MCP Server]
+    participant Registry[Tool Registry]
+    participant Handler[Tool Handler]
+    participant ITSM[ITSM System API]
+
+    Client->>MCP: stdio message
+    MCP->>MCP: Parse JSON message
+
+    alt tool_call format (new)
+        MCP->>MCP: Extract tool name & params
+    else function_call format (legacy)
+        MCP->>MCP: Convert to tool_call format
+    end
+
+    MCP->>Registry: Get tool handler
+    Registry-->>MCP: Handler function
+
+    alt create_ticket
+        MCP->>Handler: createTicket(params)
+        Handler->>Handler: Validate params
+        Handler->>Handler: Map to ITSM format
+        Handler->>ITSM: POST /api/tickets
+        ITSM-->>Handler: { id: "INC001" }
+        Handler-->>MCP: Success response
+    else get_ticket
+        MCP->>Handler: getTicket(params)
+        Handler->>ITSM: GET /api/tickets/{id}
+        ITSM-->>Handler: Ticket data
+        Handler-->>MCP: Ticket details
+    else update_ticket
+        MCP->>Handler: updateTicket(params)
+        Handler->>ITSM: PUT /api/tickets/{id}
+        ITSM-->>Handler: Updated ticket
+        Handler-->>MCP: Success response
+    else list_tickets
+        MCP->>Handler: listTickets(params)
+        Handler->>ITSM: GET /api/tickets?filter
+        ITSM-->>Handler: Ticket list
+        Handler-->>MCP: Array of tickets
+    else assign_ticket
+        MCP->>Handler: assignTicket(params)
+        Handler->>ITSM: PUT /api/tickets/{id}/assign
+        ITSM-->>Handler: Assignment confirmed
+        Handler-->>MCP: Success response
+    else add_comment
+        MCP->>Handler: addComment(params)
+        Handler->>ITSM: POST /api/tickets/{id}/comments
+        ITSM-->>Handler: Comment added
+        Handler-->>MCP: Success response
+    else search_knowledge_base
+        MCP->>Handler: searchKB(params)
+        Handler->>ITSM: GET /api/kb/search?q=
+        ITSM-->>Handler: KB articles
+        Handler-->>MCP: Search results
+    end
+
+    MCP->>MCP: Format response
+    MCP->>Client: stdio JSON response
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>MCP Tools Available</h3>
+                    <ul>
+                        <li><strong>create_ticket:</strong> Create new ITSM tickets with validation</li>
+                        <li><strong>get_ticket:</strong> Retrieve ticket details by ID</li>
+                        <li><strong>update_ticket:</strong> Modify existing ticket fields</li>
+                        <li><strong>list_tickets:</strong> Query tickets with filtering options</li>
+                        <li><strong>assign_ticket:</strong> Assign tickets to specific users</li>
+                        <li><strong>add_comment:</strong> Add comments/notes to tickets</li>
+                        <li><strong>search_knowledge_base:</strong> Search KB articles</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Error Boundary -->
+            <div class="diagram-section" id="error-boundary">
+                <div class="diagram-header">
+                    <h2>Error Boundary Error Handling</h2>
+                    <p>How the application handles and recovers from errors</p>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+stateDiagram-v2
+    [*] --> Normal: App Running
+
+    Normal --> ErrorCaught: JavaScript Error
+    ErrorCaught --> LogError: componentDidCatch()
+    LogError --> UpdateState: Set hasError=true
+    UpdateState --> RenderFallback: Render Error UI
+
+    state RenderFallback {
+        [*] --> ShowingError
+        ShowingError --> DevMode: NODE_ENV=development
+        ShowingError --> ProdMode: NODE_ENV=production
+
+        DevMode --> DisplayStack: Show stack trace
+        ProdMode --> DisplayGeneric: User-friendly message
+    }
+
+    RenderFallback --> AwaitingAction: Display recovery options
+
+    state AwaitingAction {
+        [*] --> Waiting
+        Waiting --> TryAgain: Click "Try Again"
+        Waiting --> GoHome: Click "Go to Home"
+        Waiting --> Reload: Click "Reload Page"
+    }
+
+    TryAgain --> ResetState: Clear error state
+    ResetState --> Normal: Re-render component
+
+    GoHome --> Navigate: window.location.href = '/'
+    Navigate --> [*]
+
+    Reload --> FullReload: window.location.reload()
+    FullReload --> [*]
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Error Handling Features</h3>
+                    <ul>
+                        <li><strong>Global Catch:</strong> ErrorBoundary catches all React component errors</li>
+                        <li><strong>Graceful Degradation:</strong> Shows fallback UI instead of white screen</li>
+                        <li><strong>Development Details:</strong> Full stack traces in development mode</li>
+                        <li><strong>Production Safety:</strong> User-friendly messages in production</li>
+                        <li><strong>Recovery Options:</strong> Try again, go home, or reload page</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- API Lifecycle -->
+            <div class="diagram-section" id="api-cycle">
+                <div class="diagram-header">
+                    <h2>API Request/Response Cycle</h2>
+                    <p>Complete middleware processing pipeline</p>
+                </div>
+
+                <div class="diagram-container">
+                    <div class="mermaid">
+sequenceDiagram
+    participant Browser
+    participant Axios
+    participant Interceptor
+    participant Express
+    participant MW[Middleware Stack]
+    participant Route
+    participant Model
+    participant DB
+
+    Browser->>Axios: API call
+    Axios->>Interceptor: Request interceptor
+    Interceptor->>Interceptor: Add Bearer token
+    Interceptor->>Express: HTTP Request
+
+    Express->>MW: CORS
+    MW->>MW: Helmet (Security Headers)
+    MW->>MW: Compression
+    MW->>MW: Morgan (Logging)
+    MW->>MW: Rate Limit Check
+
+    alt Rate Limit Exceeded
+        MW-->>Express: 429 Too Many Requests
+        Express-->>Browser: Error response
+    else Rate Limit OK
+        MW->>MW: authenticate()
+        alt Invalid Token
+            MW-->>Express: 401 Unauthorized
+            Express-->>Browser: Auth error
+        else Valid Token
+            MW->>MW: authorize()
+            alt Insufficient Role
+                MW-->>Express: 403 Forbidden
+                Express-->>Browser: Permission denied
+            else Authorized
+                MW->>MW: validate()
+                alt Validation Failed
+                    MW-->>Express: 400 Bad Request
+                    Express-->>Browser: Validation errors
+                else Valid Input
+                    MW->>Route: Route handler
+                    Route->>Model: Database operation
+                    Model->>DB: Query/Update
+                    DB-->>Model: Result
+                    Model-->>Route: Processed data
+                    Route-->>Express: Success response
+                    Express-->>Browser: 200/201 + data
+                    Browser->>Browser: Update UI
+                end
+            end
+        end
+    end
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Middleware Stack Features</h3>
+                    <ul>
+                        <li><strong>CORS:</strong> Cross-origin request handling</li>
+                        <li><strong>Helmet:</strong> Security headers (XSS, clickjacking protection)</li>
+                        <li><strong>Compression:</strong> gzip response compression</li>
+                        <li><strong>Morgan:</strong> HTTP request logging</li>
+                        <li><strong>Rate Limiting:</strong> DDoS and brute force protection</li>
+                        <li><strong>Authentication:</strong> JWT token verification</li>
+                        <li><strong>Authorization:</strong> Role and resource-based access control</li>
+                        <li><strong>Validation:</strong> Joi schema validation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>MCP-ITSM Integration Platform</strong></p>
+            <p>Model Context Protocol + Multi-ITSM Integration System</p>
+            <p>Built with React, Express.js, MongoDB, and MCP Protocol</p>
+            <p style="margin-top: 20px; opacity: 0.7;">© 2024 - All diagrams generated with Mermaid.js</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.nav-tab');
+        const sections = document.querySelectorAll('.diagram-section');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetDiagram = tab.getAttribute('data-diagram');
+
+                // Remove active class from all tabs and sections
+                tabs.forEach(t => t.classList.remove('active'));
+                sections.forEach(s => s.classList.remove('active'));
+
+                // Add active class to clicked tab and corresponding section
+                tab.classList.add('active');
+                document.getElementById(targetDiagram).classList.add('active');
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Log when diagrams are loaded
+        console.log('MCP-ITSM Architecture Diagrams loaded successfully!');
+        console.log('Total diagrams: 10');
+        console.log('Mermaid version:', mermaid.version || 'Latest');
+    </script>
+</body>
+</html>

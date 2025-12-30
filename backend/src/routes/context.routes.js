@@ -2,6 +2,8 @@ const express = require('express');
 const Context = require('../models/context.model');
 const { logger } = require('../utils/logger');
 const config = require('../config/config');
+const { validate } = require('../middleware/validation.middleware');
+const { createContextSchema, updateContextSchema, contextQuerySchema } = require('../validators/context.validator');
 
 // Middleware for authentication (to be implemented)
 const { authenticate, authorize } = require('../middleware/auth.middleware');
@@ -13,7 +15,7 @@ const router = express.Router();
  * @desc Get all contexts for authenticated user
  * @access Private
  */
-router.get('/', authenticate, async (req, res) => {
+router.get('/', authenticate, validate(contextQuerySchema, 'query'), async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -119,7 +121,7 @@ router.get('/:id', authenticate, async (req, res) => {
  * @desc Create a new context
  * @access Private
  */
-router.post('/', authenticate, async (req, res) => {
+router.post('/', authenticate, validate(createContextSchema), async (req, res) => {
   try {
     const {
       name,
@@ -184,7 +186,7 @@ router.post('/', authenticate, async (req, res) => {
  * @desc Update a context
  * @access Private
  */
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, validate(updateContextSchema), async (req, res) => {
   try {
     const context = await Context.findById(req.params.id);
     

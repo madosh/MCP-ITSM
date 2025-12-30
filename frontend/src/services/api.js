@@ -88,9 +88,17 @@ export const userService = {
 
 // Integration services
 export const integrationService = {
-  getAllIntegrations: async () => {
+  getAllIntegrations: async (params = {}) => {
     try {
-      const response = await API.get('/api/integration');
+      const { page = 1, limit = 100, type, isActive } = params;
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        ...(type && { type }),
+        ...(isActive !== undefined && { isActive: isActive.toString() })
+      });
+
+      const response = await API.get(`/api/integration?${queryParams}`);
       return response.data;
     } catch (error) {
       throw error?.response?.data || { message: 'Failed to fetch integrations' };

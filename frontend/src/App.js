@@ -19,17 +19,19 @@ import NotFound from './pages/NotFound';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PrivateRoute from './components/PrivateRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Services
 import { authService } from './services/api';
 
 function App() {
   return (
-    <Router>
-      <div className="d-flex flex-column min-vh-100">
-        <Header />
-        <Container className="flex-grow-1 py-4">
-          <Routes>
+    <ErrorBoundary>
+      <Router>
+        <div className="d-flex flex-column min-vh-100">
+          <Header />
+          <Container className="flex-grow-1 py-4">
+            <Routes>
             <Route path="/login" element={<Login />} />
             
             <Route 
@@ -110,6 +112,7 @@ function App() {
         <Footer />
       </div>
     </Router>
+    </ErrorBoundary>
   );
 }
 

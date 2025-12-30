@@ -1,5 +1,7 @@
 const express = require('express');
-const { authenticate, authorize } = require('../middleware/auth.middleware');
+const { authenticate, authorize, canAccessResource } = require('../middleware/auth.middleware');
+const { validate } = require('../middleware/validation.middleware');
+const { createIntegrationSchema, updateIntegrationSchema, paginationSchema } = require('../validators/integration.validator');
 const Integration = require('../models/integration.model');
 const { logger } = require('../utils/logger');
 
@@ -10,25 +12,41 @@ const router = express.Router();
  * @desc Get all integrations
  * @access Private
  */
-router.get('/', authenticate, async (req, res) => {
+router.get('/', authenticate, authorize(['admin', 'integrator']), validate(paginationSchema, 'query'), async (req, res) => {
   try {
-    // Only admins and integrators can see all integrations
-    if (req.user.role !== 'admin' && req.user.role !== 'integrator') {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied'
-      });
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 10, 100); // Max 100 per page
+    const skip = (page - 1) * limit;
+
+    // Build filter
+    const filter = {};
+    if (req.query.type) {
+      filter.type = req.query.type;
     }
-    
-    // Get all integrations
-    const integrations = await Integration.find()
+    if (req.query.isActive !== undefined) {
+      filter.isActive = req.query.isActive === 'true';
+    }
+
+    // Get integrations with pagination
+    const integrations = await Integration.find(filter)
       .select('-config.auth.credentials') // Don't send credentials
-      .sort({ name: 1 });
-    
+      .sort({ name: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Integration.countDocuments(filter);
+
     res.json({
       success: true,
       count: integrations.length,
-      data: integrations
+      data: integrations,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
     });
   } catch (error) {
     logger.error('Error fetching integrations:', error);
@@ -56,15 +74,11 @@ router.get('/:id', authenticate, async (req, res) => {
         message: 'Integration not found'
       });
     }
-    
-    // Only admins, integration managers, or creators can access specific integrations
-    const canAccess = 
-      req.user.role === 'admin' || 
-      req.user.role === 'integrator' ||
-      integration.createdBy.toString() === req.user.id ||
-      integration.managers.includes(req.user.id);
-    
-    if (!canAccess) {
+
+    // Check access using helper function
+    const hasAccess = canAccessResource(integration, req.user) || req.user.role === 'integrator';
+
+    if (!hasAccess) {
       return res.status(403).json({
         success: false,
         message: 'Access denied'
@@ -90,7 +104,7 @@ router.get('/:id', authenticate, async (req, res) => {
  * @desc Create a new integration
  * @access Private
  */
-router.post('/', authenticate, authorize(['admin', 'integrator']), async (req, res) => {
+router.post('/', authenticate, authorize(['admin', 'integrator']), validate(createIntegrationSchema), async (req, res) => {
   try {
     const {
       name,
@@ -155,7 +169,7 @@ router.post('/', authenticate, authorize(['admin', 'integrator']), async (req, r
  * @desc Update an integration
  * @access Private
  */
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, validate(updateIntegrationSchema), async (req, res) => {
   try {
     const integration = await Integration.findById(req.params.id);
     
@@ -165,14 +179,9 @@ router.put('/:id', authenticate, async (req, res) => {
         message: 'Integration not found'
       });
     }
-    
-    // Only admins, creators, or managers can update integrations
-    const canUpdate = 
-      req.user.role === 'admin' || 
-      integration.createdBy.toString() === req.user.id ||
-      integration.managers.includes(req.user.id);
-    
-    if (!canUpdate) {
+
+    // Check access using helper function
+    if (!canAccessResource(integration, req.user)) {
       return res.status(403).json({
         success: false,
         message: 'Access denied'
@@ -264,16 +273,8 @@ router.delete('/:id', authenticate, authorize(['admin']), async (req, res) => {
  * @desc Get integrations by type
  * @access Private
  */
-router.get('/type/:type', authenticate, async (req, res) => {
+router.get('/type/:type', authenticate, authorize(['admin', 'integrator']), async (req, res) => {
   try {
-    // Check if user has proper permissions
-    if (req.user.role !== 'admin' && req.user.role !== 'integrator') {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied'
-      });
-    }
-    
     const integrations = await Integration.find({ 
       type: req.params.type, 
       isActive: true 
@@ -309,14 +310,9 @@ router.post('/:id/check-health', authenticate, async (req, res) => {
         message: 'Integration not found'
       });
     }
-    
-    // Only admins, creators, or managers can check health
-    const canCheck = 
-      req.user.role === 'admin' || 
-      integration.createdBy.toString() === req.user.id ||
-      integration.managers.includes(req.user.id);
-    
-    if (!canCheck) {
+
+    // Check access using helper function
+    if (!canAccessResource(integration, req.user)) {
       return res.status(403).json({
         success: false,
         message: 'Access denied'

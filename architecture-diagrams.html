@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MCP-ITSM System Architecture - Interactive Diagrams</title>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.5/dist/mermaid.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -193,6 +193,7 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin: 30px 0;
+            padding: 0 40px;
         }
 
         .stat-card {
@@ -330,220 +331,78 @@
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
-graph TB
-    subgraph "External Systems"
-        LLM[LLM/Claude API<br/>AI Processing]
-        SN[ServiceNow<br/>ITSM Platform]
-        JIRA[Jira<br/>ITSM Platform]
-        ZD[Zendesk<br/>ITSM Platform]
+                    <pre class="mermaid">
+flowchart TD
+    subgraph External["External Systems"]
+        LLM["LLM/Claude API"]
+        SN["ServiceNow"]
+        JIRA["Jira"]
+        ZD["Zendesk"]
     end
 
-    subgraph "Frontend Layer - React SPA"
-        Browser[User Browser]
+    subgraph Frontend["Frontend Layer - React"]
+        Browser["User Browser"]
+        EB["ErrorBoundary"]
+        Router["React Router"]
 
-        subgraph "App Shell"
-            EB[ErrorBoundary<br/>Global Error Handler]
-            Router[React Router]
-            Header[Header Component]
-            Footer[Footer Component]
+        subgraph Pages
+            Login["Login"]
+            Dashboard["Dashboard"]
+            AIChat["LLM Chat"]
         end
 
-        subgraph "Pages"
-            Login[Login Page]
-            Dashboard[Dashboard<br/>Integration Overview]
-            AIChat[LLMChatClient<br/>AI-Assisted Chat]
-            IntList[Integrations List]
-            IntDetail[Integration Detail]
-            Profile[User Profile]
-            UserMgmt[User Management<br/>Admin Only]
-        end
-
-        subgraph "Chat Components"
-            ChatMsg[ChatMessageList]
-            ChatInput[ChatInputForm]
-            TicketPreview[TicketPreviewPanel]
-        end
-
-        subgraph "Custom Hooks"
-            UseChatHistory[useChatHistory<br/>Message State]
-            UseContext[useConversationContext<br/>MCP Context State]
-        end
-
-        subgraph "Services"
-            AuthSvc[authService<br/>Login/Logout/Token]
-            IntSvc[integrationService<br/>CRUD Operations]
-            UserSvc[userService<br/>User Management]
-            LLMSvc[llmService<br/>AI Processing]
-            TicketSvc[ticketService<br/>Ticket Operations]
-        end
-
-        subgraph "Guards"
-            PrivateRoute[PrivateRoute<br/>Auth Guard]
+        subgraph Services
+            AuthSvc["authService"]
+            IntSvc["integrationService"]
+            LLMSvc["llmService"]
         end
     end
 
-    subgraph "Backend Layer - Express.js API"
-        API[Express Server<br/>Port 5000]
+    subgraph Backend["Backend - Express API"]
+        API["Express Server"]
 
-        subgraph "Middleware Stack"
-            CORS[CORS<br/>Cross-Origin]
-            Helmet[Helmet<br/>Security Headers]
-            Compression[Compression<br/>gzip]
-            Morgan[Morgan<br/>HTTP Logging]
-            RateLimit[Rate Limiter<br/>DDoS Protection]
-            AuthMW[authenticate()<br/>JWT Verification]
-            AuthzMW[authorize()<br/>Role Check]
-            ValMW[validate()<br/>Joi Schema]
+        subgraph Middleware
+            AuthMW["authenticate"]
+            ValMW["validate"]
         end
 
-        subgraph "Route Handlers"
-            AuthRoutes[Auth Routes<br/>/api/auth]
-            ContextRoutes[Context Routes<br/>/api/context]
-            IntRoutes[Integration Routes<br/>/api/integration]
-            UserRoutes[User Routes<br/>/api/users]
-            HealthRoutes[Health Check<br/>/health]
+        subgraph Routes
+            AuthRoutes["/api/auth"]
+            IntRoutes["/api/integration"]
         end
 
-        subgraph "Validators"
-            AuthVal[authValidator<br/>login/register schemas]
-            CtxVal[contextValidator<br/>CRUD schemas]
-            IntVal[integrationValidator<br/>CRUD schemas]
-        end
-
-        subgraph "Models - Mongoose ODM"
-            UserModel[User Model<br/>Credentials/Roles]
-            CtxModel[Context Model<br/>MCP Context Storage]
-            IntModel[Integration Model<br/>ITSM Configs]
-        end
-
-        subgraph "Utils"
-            Logger[Winston Logger<br/>Structured Logging]
-            Config[Configuration<br/>Environment Variables]
+        subgraph Models
+            UserModel["User Model"]
+            IntModel["Integration Model"]
         end
     end
 
-    subgraph "Database Layer"
-        MongoDB[(MongoDB<br/>Document Store)]
-
-        subgraph "Collections"
-            UsersCol[users<br/>Authentication Data]
-            ContextCol[contexts<br/>MCP Context Data]
-            IntCol[integrations<br/>ITSM Configurations]
-        end
+    subgraph Database["Database"]
+        MongoDB[("MongoDB")]
     end
 
-    subgraph "MCP Server Layer"
-        MCPServer[MCP Server<br/>index.js]
-
-        subgraph "MCP Protocol"
-            StdIO[stdio Transport<br/>JSON Messages]
-            ToolRegistry[Tool Registry<br/>7 ITSM Tools]
-        end
-
-        subgraph "MCP Tools"
-            CreateTicket[create_ticket<br/>Create new tickets]
-            GetTicket[get_ticket<br/>Retrieve ticket]
-            UpdateTicket[update_ticket<br/>Modify ticket]
-            ListTickets[list_tickets<br/>Query tickets]
-            AssignTicket[assign_ticket<br/>Assign to user]
-            AddComment[add_comment<br/>Add comments]
-            SearchKB[search_knowledge_base<br/>KB articles]
-        end
+    subgraph MCP["MCP Server"]
+        MCPServer["MCP Server"]
+        CreateTicket["create_ticket"]
+        GetTicket["get_ticket"]
     end
 
     Browser --> EB
     EB --> Router
-    Router --> Header
-    Router --> Footer
-    Router --> Login
-    Router --> Dashboard
-    Router --> AIChat
-    Router --> IntList
-    Router --> IntDetail
-    Router --> Profile
-    Router --> UserMgmt
-
-    AIChat --> ChatMsg
-    AIChat --> ChatInput
-    AIChat --> TicketPreview
-    AIChat --> UseChatHistory
-    AIChat --> UseContext
-
-    Dashboard --> IntSvc
-    AIChat --> LLMSvc
-    AIChat --> TicketSvc
-    AIChat --> IntSvc
-    Login --> AuthSvc
-    IntList --> IntSvc
-    IntDetail --> IntSvc
-    Profile --> UserSvc
-    UserMgmt --> UserSvc
-
-    PrivateRoute --> AuthSvc
-    Router --> PrivateRoute
-
-    AuthSvc -.HTTP.-> API
-    IntSvc -.HTTP.-> API
-    UserSvc -.HTTP.-> API
-    LLMSvc -.HTTP.-> API
-    TicketSvc -.HTTP.-> API
-
-    API --> CORS
-    CORS --> Helmet
-    Helmet --> Compression
-    Compression --> Morgan
-    Morgan --> RateLimit
-    RateLimit --> AuthMW
-    AuthMW --> AuthzMW
-    AuthzMW --> ValMW
-
-    ValMW --> AuthRoutes
-    ValMW --> ContextRoutes
-    ValMW --> IntRoutes
-    ValMW --> UserRoutes
-    ValMW --> HealthRoutes
-
-    AuthRoutes --> AuthVal
-    ContextRoutes --> CtxVal
-    IntRoutes --> IntVal
-
-    AuthRoutes --> UserModel
-    ContextRoutes --> CtxModel
-    IntRoutes --> IntModel
-    UserRoutes --> UserModel
-
-    AuthRoutes --> Logger
-    ContextRoutes --> Logger
-    IntRoutes --> Logger
-    UserRoutes --> Logger
-    AuthRoutes --> Config
-
-    UserModel --> MongoDB
-    CtxModel --> MongoDB
-    IntModel --> MongoDB
-    MongoDB --> UsersCol
-    MongoDB --> ContextCol
-    MongoDB --> IntCol
-
-    LLMSvc -.MCP Protocol.-> MCPServer
-    MCPServer --> StdIO
-    MCPServer --> ToolRegistry
-    ToolRegistry --> CreateTicket
-    ToolRegistry --> GetTicket
-    ToolRegistry --> UpdateTicket
-    ToolRegistry --> ListTickets
-    ToolRegistry --> AssignTicket
-    ToolRegistry --> AddComment
-    ToolRegistry --> SearchKB
-
-    CreateTicket -.API.-> SN
-    CreateTicket -.API.-> JIRA
-    CreateTicket -.API.-> ZD
-    GetTicket -.API.-> SN
-    GetTicket -.API.-> JIRA
-    GetTicket -.API.-> ZD
-    LLMSvc -.API.-> LLM
+    Router --> Pages
+    Pages --> Services
+    Services --> API
+    API --> Middleware
+    Middleware --> Routes
+    Routes --> Models
+    Models --> MongoDB
+    LLMSvc --> MCPServer
+    MCPServer --> CreateTicket
+    MCPServer --> GetTicket
+    CreateTicket --> SN
+    CreateTicket --> JIRA
+    CreateTicket --> ZD
+    LLMSvc --> LLM
 
     classDef frontend fill:#e1f5ff,stroke:#01579b,stroke-width:2px
     classDef backend fill:#fff3e0,stroke:#e65100,stroke-width:2px
@@ -551,12 +410,12 @@ graph TB
     classDef mcp fill:#fce4ec,stroke:#880e4f,stroke-width:2px
     classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
 
-    class Browser,EB,Router,Header,Footer,Login,Dashboard,AIChat,IntList,IntDetail,Profile,UserMgmt,ChatMsg,ChatInput,TicketPreview,UseChatHistory,UseContext,AuthSvc,IntSvc,UserSvc,LLMSvc,TicketSvc,PrivateRoute frontend
-    class API,CORS,Helmet,Compression,Morgan,RateLimit,AuthMW,AuthzMW,ValMW,AuthRoutes,ContextRoutes,IntRoutes,UserRoutes,HealthRoutes,AuthVal,CtxVal,IntVal,UserModel,CtxModel,IntModel,Logger,Config backend
-    class MongoDB,UsersCol,ContextCol,IntCol database
-    class MCPServer,StdIO,ToolRegistry,CreateTicket,GetTicket,UpdateTicket,ListTickets,AssignTicket,AddComment,SearchKB mcp
+    class Browser,EB,Router,Pages,Services frontend
+    class API,Middleware,Routes,Models backend
+    class MongoDB database
+    class MCPServer,CreateTicket,GetTicket mcp
     class LLM,SN,JIRA,ZD external
-                    </div>
+                    </pre>
                 </div>
 
                 <div class="info-box">
@@ -579,71 +438,54 @@ graph TB
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <pre class="mermaid">
 sequenceDiagram
     participant User
     participant Frontend
-    participant PrivateRoute
-    participant AuthService
     participant API
-    participant AuthMW
-    participant UserModel
-    participant MongoDB
+    participant Auth["Auth Middleware"]
+    participant DB["MongoDB"]
 
     User->>Frontend: Navigate to /dashboard
-    Frontend->>PrivateRoute: Check authentication
-    PrivateRoute->>AuthService: isAuthenticated()
-    AuthService->>AuthService: Check localStorage token
+    Frontend->>Frontend: Check localStorage token
 
     alt No token
-        AuthService-->>PrivateRoute: false
-        PrivateRoute->>Frontend: Redirect to /login
-        Frontend->>User: Show login page
+        Frontend->>User: Redirect to /login
         User->>Frontend: Enter credentials
         Frontend->>API: POST /api/auth/login
-        API->>AuthMW: validate(loginSchema)
-        AuthMW->>UserModel: findOne({ email or username })
-        UserModel->>MongoDB: Query users collection
-        MongoDB-->>UserModel: User document
-        UserModel->>UserModel: comparePassword()
-        UserModel->>UserModel: JWT.sign()
-        UserModel-->>API: { token, user }
-        API-->>Frontend: 200 OK + token
-        Frontend->>AuthService: Save token to localStorage
+        API->>Auth: validate credentials
+        Auth->>DB: Query user
+        DB-->>Auth: User data
+        Auth->>Auth: Compare password
+        Auth->>Auth: Generate JWT
+        Auth-->>API: Token + User
+        API-->>Frontend: 200 OK
+        Frontend->>Frontend: Save token
         Frontend->>User: Redirect to /dashboard
     else Has token
-        AuthService-->>PrivateRoute: true
-        PrivateRoute->>Frontend: Render Dashboard
-        Frontend->>API: GET /api/integration (with token)
-        API->>AuthMW: authenticate()
-        AuthMW->>AuthMW: Verify JWT token
-        AuthMW->>UserModel: findById(decoded.id)
-        UserModel->>MongoDB: Query users
-        MongoDB-->>UserModel: User data
-        UserModel-->>AuthMW: User object
-        AuthMW->>AuthMW: Check isActive
-        AuthMW->>API: req.user = userObject
-        API->>AuthMW: authorize(['admin', 'integrator'])
-        AuthMW->>AuthMW: Check req.user.role
+        Frontend->>API: GET /api/integration
+        API->>Auth: Verify JWT
+        Auth->>DB: Get user
+        DB-->>Auth: User object
+        Auth->>Auth: Check role
         alt Authorized
-            AuthMW->>API: next()
+            Auth->>API: Allow request
             API-->>Frontend: 200 OK + data
-            Frontend->>User: Display integrations
+            Frontend->>User: Display page
         else Unauthorized
-            AuthMW-->>Frontend: 403 Forbidden
-            Frontend->>User: Show error message
+            Auth-->>Frontend: 403 Forbidden
+            Frontend->>User: Access denied
         end
     end
-                    </div>
+                    </pre>
                 </div>
 
                 <div class="info-box">
                     <h3>Authentication Features</h3>
                     <ul>
-                        <li><strong>JWT Tokens:</strong> Secure token-based authentication with 1-day expiration</li>
-                        <li><strong>Password Hashing:</strong> bcryptjs for secure password storage</li>
-                        <li><strong>Role-Based Access:</strong> Admin, User, Integrator roles with granular permissions</li>
-                        <li><strong>Active Status Check:</strong> Disabled accounts are rejected even with valid tokens</li>
+                        <li><strong>JWT Tokens:</strong> Secure token-based authentication</li>
+                        <li><strong>Password Hashing:</strong> bcryptjs for secure storage</li>
+                        <li><strong>Role-Based Access:</strong> Admin, User, Integrator roles</li>
                         <li><strong>Protected Routes:</strong> Frontend guards prevent unauthorized access</li>
                     </ul>
                 </div>
@@ -653,76 +495,44 @@ sequenceDiagram
             <div class="diagram-section" id="ai-ticket">
                 <div class="diagram-header">
                     <h2>AI-Assisted Ticket Creation Flow</h2>
-                    <p>How the system processes natural language and creates ITSM tickets using AI</p>
+                    <p>Natural language processing for ITSM ticket creation</p>
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <pre class="mermaid">
 sequenceDiagram
     participant User
-    participant AIChat
-    participant ChatInput
-    participant ChatMsg
-    participant TicketPreview
-    participant LLMService
-    participant TicketService
-    participant MCPServer
-    participant LLM
-    participant ITSM[ITSM System]
+    participant Chat["LLM Chat UI"]
+    participant LLM["LLM Service"]
+    participant MCP["MCP Server"]
+    participant ITSM["ITSM System"]
 
-    User->>AIChat: Type issue description
-    AIChat->>ChatInput: Render input form
-    User->>ChatInput: Submit message
-    ChatInput->>AIChat: handleSubmit(message)
-
-    AIChat->>ChatMsg: Add user message
-    ChatMsg->>User: Display message
-
-    AIChat->>LLMService: processTicketRequest()
-    LLMService->>LLMService: Extract priority keywords
-    LLMService->>LLMService: Detect category
-    LLMService->>LLMService: Parse summary/description
-
-    alt LLM Mode Enabled
-        LLMService->>MCPServer: Send MCP request
-        MCPServer->>LLM: Process with AI model
-        LLM-->>MCPServer: AI response
-        MCPServer-->>LLMService: Extracted ticket data
-    else Simulated Mode
-        LLMService->>LLMService: Rule-based extraction
-    end
-
-    LLMService-->>AIChat: { message, extractedData, confirmCreate }
-
-    AIChat->>ChatMsg: Add AI response
-    ChatMsg->>User: Display AI analysis
-
-    AIChat->>TicketPreview: Show extracted data
-    TicketPreview->>User: Display ticket preview
-
-    User->>TicketPreview: Click "Create Ticket"
-    TicketPreview->>AIChat: handleCreateTicket()
-
-    AIChat->>TicketService: createTicket(systemId, ticketData)
-    TicketService->>MCPServer: create_ticket tool call
-    MCPServer->>ITSM: API request
-    ITSM-->>MCPServer: Ticket created (ID: INC001)
-    MCPServer-->>TicketService: { ticketId, ticketUrl }
-    TicketService-->>AIChat: Success response
-
-    AIChat->>ChatMsg: Add success message
-    ChatMsg->>User: Display "Ticket created!"
-                    </div>
+    User->>Chat: Type issue description
+    Chat->>LLM: Process request
+    LLM->>LLM: Extract priority
+    LLM->>LLM: Detect category
+    LLM->>LLM: Parse description
+    LLM->>MCP: Send MCP request
+    MCP->>MCP: Process with AI
+    MCP-->>LLM: Extracted data
+    LLM-->>Chat: Display preview
+    Chat->>User: Show ticket preview
+    User->>Chat: Confirm creation
+    Chat->>MCP: create_ticket
+    MCP->>ITSM: API request
+    ITSM-->>MCP: Ticket ID
+    MCP-->>Chat: Success
+    Chat->>User: Show confirmation
+                    </pre>
                 </div>
 
                 <div class="info-box">
                     <h3>AI Processing Features</h3>
                     <ul>
-                        <li><strong>Natural Language Understanding:</strong> Processes user descriptions in plain English</li>
-                        <li><strong>Automatic Extraction:</strong> Detects priority, category, summary from context</li>
-                        <li><strong>Review Before Creation:</strong> Users can review and refine AI-extracted data</li>
-                        <li><strong>MCP Protocol:</strong> Standardized communication with LLM services</li>
-                        <li><strong>Fallback Mode:</strong> Rule-based processing when LLM is unavailable</li>
+                        <li><strong>Natural Language:</strong> Plain English input</li>
+                        <li><strong>Auto-extraction:</strong> Priority, category, summary</li>
+                        <li><strong>Review & Refine:</strong> User confirmation before creation</li>
+                        <li><strong>MCP Protocol:</strong> Standardized LLM communication</li>
                     </ul>
                 </div>
             </div>
@@ -731,50 +541,39 @@ sequenceDiagram
             <div class="diagram-section" id="validation">
                 <div class="diagram-header">
                     <h2>Data Validation Flow</h2>
-                    <p>How incoming requests are validated using Joi schemas</p>
+                    <p>Request validation using Joi schemas</p>
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <pre class="mermaid">
 sequenceDiagram
     participant Client
     participant Route
-    participant ValidateMW[validate() Middleware]
-    participant JoiSchema
-    participant Handler[Route Handler]
-    participant Model
-    participant DB[MongoDB]
+    participant Validator["Joi Validator"]
+    participant Handler
+    participant DB
 
     Client->>Route: POST /api/integration
-    Route->>ValidateMW: Intercept request
-    ValidateMW->>JoiSchema: schema.validate(req.body)
+    Route->>Validator: Validate request
 
-    alt Validation Fails
-        JoiSchema-->>ValidateMW: { error: [...] }
-        ValidateMW->>ValidateMW: Format error details
-        ValidateMW-->>Client: 400 Bad Request<br/>{ errors: [{field, message}] }
-    else Validation Passes
-        JoiSchema-->>ValidateMW: { value: sanitizedData }
-        ValidateMW->>ValidateMW: req.body = sanitizedData
-        ValidateMW->>Handler: next()
-        Handler->>Model: new Integration(data)
-        Model->>Model: Mongoose validation
-        Model->>DB: Save document
-        DB-->>Model: Saved document
-        Model-->>Handler: Integration object
-        Handler-->>Client: 201 Created + data
+    alt Invalid Data
+        Validator-->>Client: 400 Bad Request
+    else Valid Data
+        Validator->>Handler: Pass sanitized data
+        Handler->>DB: Save to database
+        DB-->>Handler: Success
+        Handler-->>Client: 201 Created
     end
-                    </div>
+                    </pre>
                 </div>
 
                 <div class="info-box">
                     <h3>Validation Features</h3>
                     <ul>
-                        <li><strong>Joi Schemas:</strong> Declarative validation for all API endpoints</li>
-                        <li><strong>Type Coercion:</strong> Automatic conversion (strings to numbers, etc.)</li>
-                        <li><strong>Unknown Field Removal:</strong> Strips unexpected data for security</li>
-                        <li><strong>Detailed Errors:</strong> Field-level error messages for better UX</li>
-                        <li><strong>Injection Prevention:</strong> Validates input format to prevent attacks</li>
+                        <li><strong>Joi Schemas:</strong> Declarative validation</li>
+                        <li><strong>Type Coercion:</strong> Automatic conversion</li>
+                        <li><strong>Security:</strong> Injection prevention</li>
+                        <li><strong>Detailed Errors:</strong> Field-level messages</li>
                     </ul>
                 </div>
             </div>
@@ -782,71 +581,43 @@ sequenceDiagram
             <!-- Access Control -->
             <div class="diagram-section" id="access-control">
                 <div class="diagram-header">
-                    <h2>Resource Access Control Flow</h2>
-                    <p>Decision tree for the canAccessResource() authorization logic</p>
+                    <h2>Resource Access Control</h2>
+                    <p>Authorization decision tree</p>
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <pre class="mermaid">
 flowchart TD
-    Start[Incoming Request] --> Auth{Authenticated?}
+    Start([Request]) --> Auth{Authenticated?}
     Auth -->|No| Reject401[401 Unauthorized]
-    Auth -->|Yes| RoleCheck{Role-based<br/>Authorization?}
+    Auth -->|Yes| Admin{Is Admin?}
+    Admin -->|Yes| Allow[✓ Allow Access]
+    Admin -->|No| Owner{Is Owner?}
+    Owner -->|Yes| Allow
+    Owner -->|No| Manager{Is Manager?}
+    Manager -->|Yes| Allow
+    Manager -->|No| Public{Is Public?}
+    Public -->|Yes| Allow
+    Public -->|No| Reject403[403 Forbidden]
 
-    RoleCheck -->|Yes| HasRole{Has Required<br/>Role?}
-    HasRole -->|No| Reject403[403 Forbidden]
-    HasRole -->|Yes| ResourceCheck{Resource-based<br/>Authorization?}
-
-    RoleCheck -->|No| ResourceCheck
-
-    ResourceCheck -->|No| Allow[Allow Access]
-    ResourceCheck -->|Yes| LoadResource[Load Resource<br/>from DB]
-
-    LoadResource --> CheckAdmin{Is Admin?}
-    CheckAdmin -->|Yes| Allow
-    CheckAdmin -->|No| CheckOwner{Is Owner?}
-
-    CheckOwner -->|Yes| Allow
-    CheckOwner -->|No| CheckCreator{Is Creator?}
-
-    CheckCreator -->|Yes| Allow
-    CheckCreator -->|No| CheckManager{Is Manager?}
-
-    CheckManager -->|Yes| Allow
-    CheckManager -->|No| CheckPublic{Is Public?}
-
-    CheckPublic -->|Yes| Allow
-    CheckPublic -->|No| CheckAllowedUser{In Allowed<br/>Users?}
-
-    CheckAllowedUser -->|Yes| Allow
-    CheckAllowedUser -->|No| CheckAllowedRole{Has Allowed<br/>Role?}
-
-    CheckAllowedRole -->|Yes| Allow
-    CheckAllowedRole -->|No| Reject403
-
-    Allow --> ProcessRequest[Process Request]
-    ProcessRequest --> Response[Return Response]
+    Allow --> Process[Process Request]
+    Process --> Success[Return Data]
 
     style Start fill:#e3f2fd
-    style Auth fill:#fff3e0
-    style RoleCheck fill:#fff3e0
-    style ResourceCheck fill:#fff3e0
     style Allow fill:#c8e6c9
     style Reject401 fill:#ffcdd2
     style Reject403 fill:#ffcdd2
-    style Response fill:#c8e6c9
-                    </div>
+    style Success fill:#c8e6c9
+                    </pre>
                 </div>
 
                 <div class="info-box">
                     <h3>Access Control Features</h3>
                     <ul>
-                        <li><strong>Multi-Level Authorization:</strong> Role-based + resource-based permissions</li>
-                        <li><strong>Admin Override:</strong> Admins always have full access</li>
-                        <li><strong>Ownership Checks:</strong> Creators and owners have special privileges</li>
-                        <li><strong>Manager System:</strong> Resources can have multiple managers</li>
-                        <li><strong>Public/Private Access:</strong> Flexible visibility controls</li>
-                        <li><strong>Allowed Users/Roles:</strong> Fine-grained access control lists</li>
+                        <li><strong>Multi-Level:</strong> Role + resource authorization</li>
+                        <li><strong>Admin Override:</strong> Full access for admins</li>
+                        <li><strong>Ownership:</strong> Creator privileges</li>
+                        <li><strong>Flexible:</strong> Public/private controls</li>
                     </ul>
                 </div>
             </div>
@@ -854,87 +625,54 @@ flowchart TD
             <!-- Database Schema -->
             <div class="diagram-section" id="database">
                 <div class="diagram-header">
-                    <h2>Database Schema & Relationships</h2>
-                    <p>MongoDB collections and their relationships</p>
+                    <h2>Database Schema</h2>
+                    <p>MongoDB collections and relationships</p>
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <pre class="mermaid">
 erDiagram
     USER ||--o{ CONTEXT : owns
     USER ||--o{ INTEGRATION : creates
     USER }o--o{ INTEGRATION : manages
-    INTEGRATION ||--o{ ENDPOINT : contains
-    CONTEXT }o--|| INTEGRATION : "linked to"
 
     USER {
-        ObjectId _id PK
+        ObjectId id PK
         string username UK
         string email UK
-        string password "bcrypt hashed"
-        string firstName
-        string lastName
-        enum role "admin, user, integrator"
+        string password
+        string role
         boolean isActive
-        datetime lastLogin
-        datetime createdAt
-        datetime updatedAt
     }
 
     CONTEXT {
-        ObjectId _id PK
+        ObjectId id PK
         string name
-        string description
-        string source "ITSM system name"
-        string externalId "External ticket ID"
-        enum contentType "ticket, conversation, kb, process"
-        mixed data "Context payload"
-        mixed metadata
-        number ttl "Time-to-live seconds"
-        datetime expiresAt "Auto-delete time"
-        number size "Data size in bytes"
-        number version "Versioning"
-        enum status "active, archived, pending"
+        string source
+        string contentType
+        mixed data
         ObjectId owner FK
-        object accessControl
-        datetime createdAt
-        datetime updatedAt
+        datetime expiresAt
     }
 
     INTEGRATION {
-        ObjectId _id PK
+        ObjectId id PK
         string name UK
-        string description
-        enum type "servicenow, jira, zendesk, custom"
+        string type
         object config
-        array endpoints
-        boolean isActive
-        object health
         ObjectId createdBy FK
-        array managers "Array of User IDs"
-        datetime createdAt
-        datetime updatedAt
+        array managers
     }
-
-    ENDPOINT {
-        string name
-        string path
-        enum method "GET, POST, PUT, DELETE, PATCH"
-        boolean enabled
-        mixed requestMapping
-        mixed responseMapping
-    }
-                    </div>
+                    </pre>
                 </div>
 
                 <div class="info-box">
                     <h3>Database Features</h3>
                     <ul>
-                        <li><strong>Mongoose ODM:</strong> Schema validation and relationships</li>
-                        <li><strong>Compound Indexes:</strong> (source, externalId), (owner, status) for fast queries</li>
-                        <li><strong>TTL Indexes:</strong> Auto-delete expired contexts</li>
-                        <li><strong>Unique Constraints:</strong> Email, username, integration names</li>
-                        <li><strong>Timestamps:</strong> Automatic createdAt/updatedAt tracking</li>
+                        <li><strong>Mongoose ODM:</strong> Schema validation</li>
+                        <li><strong>Indexes:</strong> Compound indexes for performance</li>
+                        <li><strong>TTL:</strong> Auto-delete expired contexts</li>
+                        <li><strong>Relationships:</strong> User owns contexts and integrations</li>
                     </ul>
                 </div>
             </div>
@@ -943,70 +681,34 @@ erDiagram
             <div class="diagram-section" id="state">
                 <div class="diagram-header">
                     <h2>Component State Management</h2>
-                    <p>LLMChatClient component lifecycle and state transitions</p>
+                    <p>LLMChatClient lifecycle</p>
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <pre class="mermaid">
 stateDiagram-v2
-    [*] --> Initializing: Component Mount
-
-    Initializing --> LoadingIntegrations: useEffect()
-    LoadingIntegrations --> IntegrationsLoaded: Success
-    LoadingIntegrations --> Error: API Failure
-
-    IntegrationsLoaded --> Idle: Ready
-    Error --> Idle: User Dismisses
-
-    state Idle {
-        [*] --> NoMessage
-        NoMessage --> TypingMessage: User Types
-        TypingMessage --> MessageReady: Has Text
-        MessageReady --> NoMessage: Clear Input
-    }
-
-    MessageReady --> ProcessingLLM: Submit (LLM Mode)
-    MessageReady --> ProcessingDirect: Submit (Direct Mode)
-
-    state ProcessingLLM {
-        [*] --> CallingLLM
-        CallingLLM --> ExtractingData
-        ExtractingData --> ShowingPreview
-    }
-
-    state ProcessingDirect {
-        [*] --> CreatingTicket
-        CreatingTicket --> TicketCreated
-    }
-
-    ShowingPreview --> AwaitingConfirmation: Display Preview
-
-    state AwaitingConfirmation {
-        [*] --> Previewing
-        Previewing --> Refining: User Clicks Refine
-        Previewing --> ConfirmedCreate: User Clicks Create
-    }
-
-    Refining --> Idle: Dismiss Preview
-    ConfirmedCreate --> CreatingFromExtracted: API Call
-    CreatingFromExtracted --> TicketCreated: Success
-    CreatingFromExtracted --> Error: Failure
-
-    TicketCreated --> Idle: Show Confirmation
-    Error --> Idle: Show Error
-
-    Idle --> [*]: Component Unmount
-                    </div>
+    [*] --> Initializing
+    Initializing --> Loading
+    Loading --> Ready
+    Ready --> Typing
+    Typing --> Processing
+    Processing --> Previewing
+    Previewing --> Creating
+    Creating --> Success
+    Success --> Ready
+    Processing --> Error
+    Error --> Ready
+    Ready --> [*]
+                    </pre>
                 </div>
 
                 <div class="info-box">
-                    <h3>State Management Features</h3>
+                    <h3>State Features</h3>
                     <ul>
-                        <li><strong>Custom Hooks:</strong> useChatHistory, useConversationContext for separation of concerns</li>
-                        <li><strong>Mode Switching:</strong> Toggle between LLM-assisted and direct mode</li>
-                        <li><strong>Error Recovery:</strong> Graceful error handling returns to idle state</li>
-                        <li><strong>Preview System:</strong> Review AI-extracted data before submission</li>
-                        <li><strong>Message Persistence:</strong> Chat history maintained in component state</li>
+                        <li><strong>Custom Hooks:</strong> useChatHistory, useConversationContext</li>
+                        <li><strong>Mode Switching:</strong> LLM vs direct mode</li>
+                        <li><strong>Error Recovery:</strong> Returns to ready state</li>
+                        <li><strong>Preview:</strong> Review before submission</li>
                     </ul>
                 </div>
             </div>
@@ -1014,85 +716,48 @@ stateDiagram-v2
             <!-- MCP Tools -->
             <div class="diagram-section" id="mcp-tools">
                 <div class="diagram-header">
-                    <h2>MCP Server Tool Execution Flow</h2>
-                    <p>How MCP tools process requests and interact with ITSM systems</p>
+                    <h2>MCP Tool Execution</h2>
+                    <p>Tool processing flow</p>
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <pre class="mermaid">
 sequenceDiagram
-    participant Client[LLM/Client]
-    participant MCP[MCP Server]
-    participant Registry[Tool Registry]
-    participant Handler[Tool Handler]
-    participant ITSM[ITSM System API]
+    participant Client
+    participant MCP["MCP Server"]
+    participant Tool["Tool Handler"]
+    participant ITSM
 
     Client->>MCP: stdio message
-    MCP->>MCP: Parse JSON message
-
-    alt tool_call format (new)
-        MCP->>MCP: Extract tool name & params
-    else function_call format (legacy)
-        MCP->>MCP: Convert to tool_call format
-    end
-
-    MCP->>Registry: Get tool handler
-    Registry-->>MCP: Handler function
+    MCP->>MCP: Parse JSON
+    MCP->>Tool: Get handler
 
     alt create_ticket
-        MCP->>Handler: createTicket(params)
-        Handler->>Handler: Validate params
-        Handler->>Handler: Map to ITSM format
-        Handler->>ITSM: POST /api/tickets
-        ITSM-->>Handler: { id: "INC001" }
-        Handler-->>MCP: Success response
+        Tool->>ITSM: POST /tickets
+        ITSM-->>Tool: Ticket ID
     else get_ticket
-        MCP->>Handler: getTicket(params)
-        Handler->>ITSM: GET /api/tickets/{id}
-        ITSM-->>Handler: Ticket data
-        Handler-->>MCP: Ticket details
+        Tool->>ITSM: GET /tickets/id
+        ITSM-->>Tool: Ticket data
     else update_ticket
-        MCP->>Handler: updateTicket(params)
-        Handler->>ITSM: PUT /api/tickets/{id}
-        ITSM-->>Handler: Updated ticket
-        Handler-->>MCP: Success response
-    else list_tickets
-        MCP->>Handler: listTickets(params)
-        Handler->>ITSM: GET /api/tickets?filter
-        ITSM-->>Handler: Ticket list
-        Handler-->>MCP: Array of tickets
-    else assign_ticket
-        MCP->>Handler: assignTicket(params)
-        Handler->>ITSM: PUT /api/tickets/{id}/assign
-        ITSM-->>Handler: Assignment confirmed
-        Handler-->>MCP: Success response
-    else add_comment
-        MCP->>Handler: addComment(params)
-        Handler->>ITSM: POST /api/tickets/{id}/comments
-        ITSM-->>Handler: Comment added
-        Handler-->>MCP: Success response
-    else search_knowledge_base
-        MCP->>Handler: searchKB(params)
-        Handler->>ITSM: GET /api/kb/search?q=
-        ITSM-->>Handler: KB articles
-        Handler-->>MCP: Search results
+        Tool->>ITSM: PUT /tickets/id
+        ITSM-->>Tool: Updated
     end
 
-    MCP->>MCP: Format response
-    MCP->>Client: stdio JSON response
-                    </div>
+    Tool-->>MCP: Result
+    MCP->>Client: stdio response
+                    </pre>
                 </div>
 
                 <div class="info-box">
-                    <h3>MCP Tools Available</h3>
+                    <h3>MCP Tools</h3>
                     <ul>
-                        <li><strong>create_ticket:</strong> Create new ITSM tickets with validation</li>
-                        <li><strong>get_ticket:</strong> Retrieve ticket details by ID</li>
-                        <li><strong>update_ticket:</strong> Modify existing ticket fields</li>
-                        <li><strong>list_tickets:</strong> Query tickets with filtering options</li>
-                        <li><strong>assign_ticket:</strong> Assign tickets to specific users</li>
-                        <li><strong>add_comment:</strong> Add comments/notes to tickets</li>
-                        <li><strong>search_knowledge_base:</strong> Search KB articles</li>
+                        <li><strong>create_ticket:</strong> Create ITSM tickets</li>
+                        <li><strong>get_ticket:</strong> Retrieve details</li>
+                        <li><strong>update_ticket:</strong> Modify tickets</li>
+                        <li><strong>list_tickets:</strong> Query with filters</li>
+                        <li><strong>assign_ticket:</strong> Assign to users</li>
+                        <li><strong>add_comment:</strong> Add notes</li>
+                        <li><strong>search_knowledge_base:</strong> Search KB</li>
                     </ul>
                 </div>
             </div>
@@ -1100,57 +765,39 @@ sequenceDiagram
             <!-- Error Boundary -->
             <div class="diagram-section" id="error-boundary">
                 <div class="diagram-header">
-                    <h2>Error Boundary Error Handling</h2>
-                    <p>How the application handles and recovers from errors</p>
+                    <h2>Error Boundary Handling</h2>
+                    <p>React error recovery</p>
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <pre class="mermaid">
 stateDiagram-v2
-    [*] --> Normal: App Running
+    [*] --> Normal
+    Normal --> ErrorCaught : JS Error
+    ErrorCaught --> ShowFallback
 
-    Normal --> ErrorCaught: JavaScript Error
-    ErrorCaught --> LogError: componentDidCatch()
-    LogError --> UpdateState: Set hasError=true
-    UpdateState --> RenderFallback: Render Error UI
-
-    state RenderFallback {
-        [*] --> ShowingError
-        ShowingError --> DevMode: NODE_ENV=development
-        ShowingError --> ProdMode: NODE_ENV=production
-
-        DevMode --> DisplayStack: Show stack trace
-        ProdMode --> DisplayGeneric: User-friendly message
+    state ShowFallback {
+        [*] --> DevMode
+        [*] --> ProdMode
     }
 
-    RenderFallback --> AwaitingAction: Display recovery options
+    ShowFallback --> TryAgain : User clicks
+    ShowFallback --> GoHome : User clicks
+    ShowFallback --> Reload : User clicks
 
-    state AwaitingAction {
-        [*] --> Waiting
-        Waiting --> TryAgain: Click "Try Again"
-        Waiting --> GoHome: Click "Go to Home"
-        Waiting --> Reload: Click "Reload Page"
-    }
-
-    TryAgain --> ResetState: Clear error state
-    ResetState --> Normal: Re-render component
-
-    GoHome --> Navigate: window.location.href = '/'
-    Navigate --> [*]
-
-    Reload --> FullReload: window.location.reload()
-    FullReload --> [*]
-                    </div>
+    TryAgain --> Normal
+    GoHome --> [*]
+    Reload --> [*]
+                    </pre>
                 </div>
 
                 <div class="info-box">
-                    <h3>Error Handling Features</h3>
+                    <h3>Error Features</h3>
                     <ul>
-                        <li><strong>Global Catch:</strong> ErrorBoundary catches all React component errors</li>
-                        <li><strong>Graceful Degradation:</strong> Shows fallback UI instead of white screen</li>
-                        <li><strong>Development Details:</strong> Full stack traces in development mode</li>
-                        <li><strong>Production Safety:</strong> User-friendly messages in production</li>
-                        <li><strong>Recovery Options:</strong> Try again, go home, or reload page</li>
+                        <li><strong>Global Catch:</strong> All React errors</li>
+                        <li><strong>Fallback UI:</strong> User-friendly display</li>
+                        <li><strong>Dev Mode:</strong> Stack traces</li>
+                        <li><strong>Recovery:</strong> Try again, go home, reload</li>
                     </ul>
                 </div>
             </div>
@@ -1158,78 +805,59 @@ stateDiagram-v2
             <!-- API Lifecycle -->
             <div class="diagram-section" id="api-cycle">
                 <div class="diagram-header">
-                    <h2>API Request/Response Cycle</h2>
-                    <p>Complete middleware processing pipeline</p>
+                    <h2>API Request Lifecycle</h2>
+                    <p>Complete middleware pipeline</p>
                 </div>
 
                 <div class="diagram-container">
-                    <div class="mermaid">
+                    <pre class="mermaid">
 sequenceDiagram
-    participant Browser
-    participant Axios
-    participant Interceptor
+    participant Client
     participant Express
-    participant MW[Middleware Stack]
+    participant MW["Middleware"]
     participant Route
-    participant Model
     participant DB
 
-    Browser->>Axios: API call
-    Axios->>Interceptor: Request interceptor
-    Interceptor->>Interceptor: Add Bearer token
-    Interceptor->>Express: HTTP Request
-
+    Client->>Express: HTTP Request
     Express->>MW: CORS
-    MW->>MW: Helmet (Security Headers)
-    MW->>MW: Compression
-    MW->>MW: Morgan (Logging)
-    MW->>MW: Rate Limit Check
+    MW->>MW: Helmet
+    MW->>MW: Rate Limit
 
-    alt Rate Limit Exceeded
-        MW-->>Express: 429 Too Many Requests
-        Express-->>Browser: Error response
-    else Rate Limit OK
-        MW->>MW: authenticate()
+    alt Rate Limited
+        MW-->>Client: 429 Too Many
+    else OK
+        MW->>MW: Authenticate
         alt Invalid Token
-            MW-->>Express: 401 Unauthorized
-            Express-->>Browser: Auth error
-        else Valid Token
-            MW->>MW: authorize()
-            alt Insufficient Role
-                MW-->>Express: 403 Forbidden
-                Express-->>Browser: Permission denied
-            else Authorized
-                MW->>MW: validate()
-                alt Validation Failed
-                    MW-->>Express: 400 Bad Request
-                    Express-->>Browser: Validation errors
-                else Valid Input
-                    MW->>Route: Route handler
-                    Route->>Model: Database operation
-                    Model->>DB: Query/Update
-                    DB-->>Model: Result
-                    Model-->>Route: Processed data
-                    Route-->>Express: Success response
-                    Express-->>Browser: 200/201 + data
-                    Browser->>Browser: Update UI
+            MW-->>Client: 401 Unauthorized
+        else Valid
+            MW->>MW: Authorize
+            alt Forbidden
+                MW-->>Client: 403 Forbidden
+            else Allowed
+                MW->>MW: Validate
+                alt Invalid
+                    MW-->>Client: 400 Bad Request
+                else Valid
+                    MW->>Route: Process
+                    Route->>DB: Query
+                    DB-->>Route: Data
+                    Route-->>Client: 200 OK
                 end
             end
         end
     end
-                    </div>
+                    </pre>
                 </div>
 
                 <div class="info-box">
-                    <h3>Middleware Stack Features</h3>
+                    <h3>Middleware Stack</h3>
                     <ul>
-                        <li><strong>CORS:</strong> Cross-origin request handling</li>
-                        <li><strong>Helmet:</strong> Security headers (XSS, clickjacking protection)</li>
-                        <li><strong>Compression:</strong> gzip response compression</li>
-                        <li><strong>Morgan:</strong> HTTP request logging</li>
-                        <li><strong>Rate Limiting:</strong> DDoS and brute force protection</li>
-                        <li><strong>Authentication:</strong> JWT token verification</li>
-                        <li><strong>Authorization:</strong> Role and resource-based access control</li>
-                        <li><strong>Validation:</strong> Joi schema validation</li>
+                        <li><strong>CORS:</strong> Cross-origin handling</li>
+                        <li><strong>Helmet:</strong> Security headers</li>
+                        <li><strong>Rate Limiting:</strong> DDoS protection</li>
+                        <li><strong>Authentication:</strong> JWT verification</li>
+                        <li><strong>Authorization:</strong> Role checking</li>
+                        <li><strong>Validation:</strong> Joi schemas</li>
                     </ul>
                 </div>
             </div>
@@ -1237,14 +865,14 @@ sequenceDiagram
 
         <footer>
             <p><strong>MCP-ITSM Integration Platform</strong></p>
-            <p>Model Context Protocol + Multi-ITSM Integration System</p>
-            <p>Built with React, Express.js, MongoDB, and MCP Protocol</p>
-            <p style="margin-top: 20px; opacity: 0.7;">© 2024 - All diagrams generated with Mermaid.js</p>
+            <p>Model Context Protocol + Multi-ITSM Integration</p>
+            <p>Built with React, Express.js, MongoDB, MCP</p>
+            <p style="margin-top: 20px; opacity: 0.7;">© 2024 - Mermaid v10.9.5</p>
         </footer>
     </div>
 
     <script>
-        // Initialize Mermaid
+        // Initialize Mermaid with proper config
         mermaid.initialize({
             startOnLoad: true,
             theme: 'default',
@@ -1253,10 +881,13 @@ sequenceDiagram
                 useMaxWidth: true,
                 htmlLabels: true,
                 curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true
             }
         });
 
-        // Tab switching functionality
+        // Tab switching
         const tabs = document.querySelectorAll('.nav-tab');
         const sections = document.querySelectorAll('.diagram-section');
 
@@ -1264,23 +895,17 @@ sequenceDiagram
             tab.addEventListener('click', () => {
                 const targetDiagram = tab.getAttribute('data-diagram');
 
-                // Remove active class from all tabs and sections
                 tabs.forEach(t => t.classList.remove('active'));
                 sections.forEach(s => s.classList.remove('active'));
 
-                // Add active class to clicked tab and corresponding section
                 tab.classList.add('active');
                 document.getElementById(targetDiagram).classList.add('active');
 
-                // Scroll to top
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         });
 
-        // Log when diagrams are loaded
-        console.log('MCP-ITSM Architecture Diagrams loaded successfully!');
-        console.log('Total diagrams: 10');
-        console.log('Mermaid version:', mermaid.version || 'Latest');
+        console.log('MCP-ITSM Architecture Diagrams loaded - Mermaid v10.9.5');
     </script>
 </body>
 </html>

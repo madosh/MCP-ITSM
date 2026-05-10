@@ -34,7 +34,13 @@ const Header = () => {
                   <NavDropdown.Item as={Link} to="/ai-chat">
                     AI-Powered Chat <Badge bg="info" pill className="ms-1">New</Badge>
                   </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/mcp-tickets">
+                    MCP Ticket Manager <Badge bg="success" pill className="ms-1">MCP</Badge>
+                  </NavDropdown.Item>
                 </NavDropdown>
+                <Nav.Link as={Link} to="/mcp-monitor">
+                  MCP Monitor <Badge bg="warning" text="dark" pill className="ms-1">Live</Badge>
+                </Nav.Link>
                 {currentUser?.role === 'admin' && (
                   <Nav.Link as={Link} to="/users">Users</Nav.Link>
                 )}

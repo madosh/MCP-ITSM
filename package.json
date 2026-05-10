@@ -1,8 +1,9 @@
 {
   "name": "mcp-itsm",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Model Context Protocol for ITSM Tools",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,12 +18,15 @@
   "author": "MCP ITSM Project Contributors",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.6.2"
+    "@modelcontextprotocol/sdk": "^1.28.0",
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1",
+    "zod": "^3.23.0"
   },
   "mcp": {
     "toolsPath": "./tools.json",
     "entryPoint": "node index.js",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "supportedTransports": ["stdio", "http"],
     "authentication": {
       "type": "apiKey",

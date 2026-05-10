@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP ITSM — Architecture & Docs</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --accent:   #4f46e5;
+      --accent2:  #7c3aed;
+      --success:  #16a34a;
+      --warn:     #d97706;
+      --danger:   #dc2626;
+      --bg:       #f8f9fc;
+      --surface:  #ffffff;
+      --border:   #e2e8f0;
+      --text:     #1e293b;
+      --muted:    #64748b;
+      --code-bg:  #0f172a;
+      --code-fg:  #e2e8f0;
+      --nav-h:    60px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Top nav ─────────────────────────────────────────────────────────── */
+    #topnav {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    #topnav .brand { font-weight: 700; font-size: 1.1rem; color: var(--accent); letter-spacing: -.3px; }
+    #topnav .brand span { color: var(--muted); font-weight: 400; }
+    #topnav nav { display: flex; gap: .25rem; flex-wrap: wrap; }
+    #topnav nav a {
+      color: var(--muted); text-decoration: none; font-size: .82rem; font-weight: 500;
+      padding: .3rem .65rem; border-radius: 6px; transition: background .15s, color .15s;
+    }
+    #topnav nav a:hover, #topnav nav a.active { background: #eef2ff; color: var(--accent); }
+    .badges { display: flex; gap: .4rem; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .2rem .55rem; border-radius: 20px; font-size: .72rem; font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-indigo  { background: #eef2ff; color: #4338ca; }
+    .badge-green   { background: #f0fdf4; color: #15803d; }
+    .badge-purple  { background: #f5f3ff; color: #7c3aed; }
+    .badge-slate   { background: #f1f5f9; color: #475569; }
+
+    /* ── Layout ──────────────────────────────────────────────────────────── */
+    .page { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+
+    /* ── Hero ─────────────────────────────────────────────────────────────── */
+    #hero {
+      text-align: center;
+      padding: 4rem 1rem 3rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 3rem;
+    }
+    #hero h1 { font-size: 2.6rem; font-weight: 800; letter-spacing: -1px; line-height: 1.15; }
+    #hero h1 em { font-style: normal; color: var(--accent); }
+    #hero p { font-size: 1.05rem; color: var(--muted); margin: .9rem auto 1.6rem; max-width: 640px; }
+    #hero .badges { justify-content: center; }
+
+    /* ── Section ─────────────────────────────────────────────────────────── */
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.2rem 2.4rem;
+      margin-bottom: 2rem;
+      scroll-margin-top: calc(var(--nav-h) + 12px);
+    }
+    section > h2 {
+      font-size: 1.45rem; font-weight: 700; color: var(--text);
+      padding-bottom: .75rem; border-bottom: 2px solid var(--border);
+      margin-bottom: 1.5rem; display: flex; align-items: center; gap: .6rem;
+    }
+    section > h2 .icon { font-size: 1.3rem; }
+    h3 { font-size: 1.05rem; font-weight: 700; color: var(--accent2); margin: 1.8rem 0 .75rem; }
+    p { margin-bottom: .85rem; color: var(--text); }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── Callout ─────────────────────────────────────────────────────────── */
+    .callout {
+      border-radius: 8px; padding: 1rem 1.25rem; margin: 1.2rem 0;
+      border-left: 4px solid;
+    }
+    .callout-info   { background: #eff6ff; border-color: #3b82f6; }
+    .callout-success{ background: #f0fdf4; border-color: #22c55e; }
+    .callout-warn   { background: #fffbeb; border-color: #f59e0b; }
+    .callout-new    { background: #f5f3ff; border-color: #8b5cf6; }
+    .callout strong { display: block; margin-bottom: .35rem; font-size: .9rem; }
+
+    /* ── Diagram ─────────────────────────────────────────────────────────── */
+    .diagram-wrap {
+      background: #fafbff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem 1rem;
+      margin: 1.25rem 0;
+      overflow-x: auto;
+    }
+    .diagram-wrap .label {
+      font-size: .75rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: .75rem;
+    }
+    .mermaid { display: flex; justify-content: center; }
+
+    /* ── Code ─────────────────────────────────────────────────────────────── */
+    .code-block {
+      position: relative; margin: 1rem 0;
+    }
+    pre {
+      background: var(--code-bg); color: var(--code-fg);
+      padding: 1.1rem 1.25rem; border-radius: 8px;
+      overflow-x: auto; font-size: .83rem; line-height: 1.65;
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    }
+    .copy-btn {
+      position: absolute; top: .6rem; right: .6rem;
+      background: #1e293b; color: #94a3b8; border: 1px solid #334155;
+      border-radius: 5px; padding: .25rem .55rem; font-size: .72rem;
+      cursor: pointer; transition: color .15s;
+    }
+    .copy-btn:hover { color: #e2e8f0; }
+    code {
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      background: #f1f5f9; color: #6d28d9;
+      padding: .15rem .4rem; border-radius: 4px; font-size: .85em;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* ── Table ─────────────────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin: 1rem 0; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+    th {
+      background: var(--accent); color: #fff;
+      padding: .6rem 1rem; text-align: left; font-weight: 600; font-size: .8rem;
+      letter-spacing: .03em;
+    }
+    td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8faff; }
+    .tag {
+      display: inline-block; padding: .15rem .45rem; border-radius: 20px;
+      font-size: .72rem; font-weight: 600;
+    }
+    .tag-ro  { background: #dcfce7; color: #166534; }
+    .tag-w   { background: #dbeafe; color: #1e40af; }
+    .tag-idem{ background: #f3f4f6; color: #374151; }
+    .tag-new { background: #ede9fe; color: #5b21b6; }
+
+    /* ── Grid ─────────────────────────────────────────────────────────────── */
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin: 1rem 0; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; margin: 1rem 0; }
+    .card {
+      border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.25rem;
+      background: #fafbff;
+    }
+    .card .card-title { font-weight: 700; font-size: .9rem; margin-bottom: .4rem; color: var(--accent2); }
+    .card .card-val   { font-size: 1.9rem; font-weight: 800; color: var(--accent); line-height: 1; }
+    .card .card-desc  { font-size: .8rem; color: var(--muted); margin-top: .35rem; }
+
+    /* ── Step ─────────────────────────────────────────────────────────────── */
+    .steps { counter-reset: step; display: flex; flex-direction: column; gap: 1rem; margin: 1rem 0; }
+    .step  {
+      display: flex; gap: 1rem;
+      background: #fafbff; border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.1rem 1.25rem;
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      background: var(--accent); color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .8rem;
+    }
+    .step-body h4 { font-size: .9rem; font-weight: 700; margin-bottom: .4rem; }
+    .step-body p  { font-size: .85rem; margin: 0; color: var(--muted); }
+
+    /* ── Terminal ────────────────────────────────────────────────────────── */
+    .terminal {
+      background: #0f172a; border-radius: 10px; overflow: hidden; margin: 1rem 0;
+    }
+    .terminal-bar {
+      background: #1e293b; padding: .5rem 1rem; display: flex; align-items: center; gap: .4rem;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ef4444; } .dot-y { background: #f59e0b; } .dot-g { background: #22c55e; }
+    .terminal-label { font-size: .73rem; color: #64748b; margin-left: .5rem; font-weight: 500; }
+    .terminal pre {
+      background: none; border-radius: 0; padding: 1rem 1.25rem;
+      margin: 0; color: #94a3b8; font-size: .81rem;
+    }
+    .terminal pre .prompt { color: #22c55e; }
+    .terminal pre .cmd    { color: #e2e8f0; }
+    .terminal pre .comment{ color: #475569; }
+    .terminal pre .out    { color: #64748b; }
+
+    /* ── URL list ─────────────────────────────────────────────────────────── */
+    .url-list { display: flex; flex-direction: column; gap: .5rem; margin: 1rem 0; }
+    .url-row  {
+      display: flex; align-items: center; gap: .75rem;
+      background: #f8faff; border: 1px solid var(--border);
+      border-radius: 8px; padding: .55rem .9rem;
+    }
+    .url-row code { background: #eef2ff; color: var(--accent); font-size: .82rem; }
+    .url-row span { font-size: .82rem; color: var(--muted); }
+
+    /* ── Roadmap ──────────────────────────────────────────────────────────── */
+    .roadmap { display: flex; flex-direction: column; gap: .6rem; margin: 1rem 0; }
+    .roadmap-item {
+      display: flex; align-items: flex-start; gap: .75rem;
+      padding: .7rem .9rem; border-radius: 8px; border: 1px solid var(--border);
+    }
+    .roadmap-item.done   { background: #f0fdf4; }
+    .roadmap-item.todo   { background: #fafbff; }
+    .ri-icon { font-size: 1rem; flex-shrink: 0; margin-top: .1rem; }
+    .ri-body .ri-title { font-size: .88rem; font-weight: 600; }
+    .ri-body .ri-desc  { font-size: .8rem; color: var(--muted); margin-top: .1rem; }
+
+    /* ── Footer ───────────────────────────────────────────────────────────── */
+    footer {
+      text-align: center; padding: 2.5rem 1rem;
+      border-top: 1px solid var(--border); color: var(--muted); font-size: .83rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      #topnav nav { display: none; }
+      #hero h1 { font-size: 1.8rem; }
+      section { padding: 1.5rem 1.2rem; }
+      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Top navigation ──────────────────────────────────────────────────────── -->
+<div id="topnav">
+  <div class="brand">MCP ITSM <span>v3.0.0</span></div>
+  <nav>
+    <a href="#overview">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#tools">Tools</a>
+    <a href="#resources">Resources</a>
+    <a href="#prompts">Prompts</a>
+    <a href="#monitoring">Monitoring</a>
+    <a href="#flow">Request Flow</a>
+    <a href="#quickstart">Quick Start</a>
+    <a href="#api">API</a>
+    <a href="#deployment">Smithery</a>
+    <a href="#upgrade">What Changed</a>
+  </nav>
+</div>
+
+<div class="page">
+
+  <!-- ── Hero ──────────────────────────────────────────────────────────────── -->
+  <div id="hero">
+    <h1>Unified ITSM over<br/><em>Model Context Protocol</em></h1>
+    <p>Create, track, and resolve tickets across ServiceNow, Jira, Zendesk, Ivanti, and Cherwell
+       from any MCP-compatible LLM client — with tools, resources, and prompts.</p>
+    <div class="badges">
+      <span class="badge badge-indigo">MCP Spec 2025-11-25</span>
+      <span class="badge badge-purple">SDK 1.28.0</span>
+      <span class="badge badge-green">Node ≥ 18</span>
+      <span class="badge badge-slate">7 Tools · 4 Resources · 3 Prompts</span>
+      <span class="badge badge-slate">MIT License</span>
+    </div>
+  </div>
+
+  <!-- ── Overview ──────────────────────────────────────────────────────────── -->
+  <section id="overview">
+    <h2><span class="icon">📋</span> Overview</h2>
+
+    <p>MCP ITSM exposes a standardised set of MCP capabilities so LLM clients need only learn
+       <em>one</em> interface instead of five ITSM APIs. Every tool carries safety annotations
+       (<code>readOnlyHint</code>, <code>destructiveHint</code>) so models know what they can call autonomously.</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">MCP Server</div>
+        <div class="card-val">index.js</div>
+        <div class="card-desc">McpServer · Zod schemas · stdio transport · 7 tools, 4 resources, 3 prompts</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Backend API</div>
+        <div class="card-val">:5000</div>
+        <div class="card-desc">Express + MongoDB · JWT auth · SDK Client bridge · metrics store · 6 MCP endpoints</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Frontend</div>
+        <div class="card-val">:3000</div>
+        <div class="card-desc">React 18 · Bootstrap 5 · Ticket Manager + Live Monitoring Dashboard</div>
+      </div>
+    </div>
+
+    <div class="callout callout-new">
+      <strong>New in v3.0.0 (May 2026)</strong>
+      Upgraded to MCP spec <strong>2025-11-25</strong> and SDK <strong>1.28.0</strong>.
+      Added tool annotations, Zod validation, MCP Resources (KB + tickets), MCP Prompts (templates),
+      SDK Client transport (replaces raw child-process bridge), metrics store, and the live monitoring dashboard.
+    </div>
+  </section>
+
+  <!-- ── Architecture ──────────────────────────────────────────────────────── -->
+  <section id="architecture">
+    <h2><span class="icon">🏗</span> System Architecture</h2>
+
+    <p>Three distinct layers: MCP clients talk to the <strong>MCP server</strong> over stdio,
+       while the <strong>Express backend</strong> bridges browser clients via the official MCP SDK Client,
+       and the <strong>React frontend</strong> drives both the ticket manager and the monitoring dashboard.</p>
+
+    <div class="diagram-wrap">
+      <div class="label">Full system — layers and connections</div>
+      <div class="mermaid">
+graph TB
+    subgraph Clients["MCP Clients"]
+        Claude["Claude / Cursor\nLLM Agent"]
+        Inspector["MCP Inspector\nDebug Tool"]
+        Browser["React Frontend\nlocalhost:3000"]
+    end
+
+    subgraph Transport["Transport Layer"]
+        Stdio["StdioServerTransport\nSmithery · Inspector · local"]
+        Bridge["Express API  :5000\nSDK Client + StdioClientTransport\nJWT auth · Metrics"]
+    end
+
+    subgraph MCPSrv["MCP Server  —  index.js  v3.0.0  (spec 2025-11-25)"]
+        Server["McpServer\n@modelcontextprotocol/sdk 1.28.0"]
+        Tools["7 Tools\nZod schemas · annotated"]
+        Res["4 Resources\nKB articles · Tickets"]
+        Prom["3 Prompts\nIncident · Status · KB-assist"]
+        Store["In-Memory Store\nTickets · KB articles"]
+    end
+
+    subgraph Backend["Backend Services"]
+        Auth["JWT Auth\nMiddleware"]
+        Metrics["Metrics Store\nlatency · counts · history"]
+        Mongo[("MongoDB\nUsers · Integrations · Context")]
+    end
+
+    Claude  -->|stdio| Stdio
+    Inspector -->|stdio| Stdio
+    Browser -->|"HTTP + Bearer token"| Bridge
+
+    Stdio --> Server
+    Bridge -->|"MCP SDK Client\nfull protocol handshake"| Server
+
+    Server --> Tools
+    Server --> Res
+    Server --> Prom
+    Tools <--> Store
+    Res --> Store
+
+    Bridge --> Auth
+    Bridge --> Metrics
+    Auth --> Mongo
+
+    style Clients fill:#eff6ff,stroke:#bfdbfe
+    style Transport fill:#f5f3ff,stroke:#ddd6fe
+    style MCPSrv fill:#f0fdf4,stroke:#bbf7d0
+    style Backend fill:#fff7ed,stroke:#fed7aa
+      </div>
+    </div>
+
+    <h3>Protocol Stack</h3>
+    <div class="diagram-wrap">
+      <div class="label">MCP capabilities used in this server</div>
+      <div class="mermaid">
+graph LR
+    Spec["MCP Spec\n2025-11-25"]
+
+    Spec --> T["Tools\n7 registered\nZod · annotated"]
+    Spec --> R["Resources\n4 registered\nstatic + template URIs"]
+    Spec --> P["Prompts\n3 registered\nZod arg schemas"]
+    Spec --> Trans["Transport\nStdioServerTransport"]
+
+    T --> TA["create_ticket\nget_ticket\nupdate_ticket\nlist_tickets\nassign_ticket\nadd_comment\nsearch_knowledge_base"]
+    R --> RA["kb://articles\nkb://articles/{id}\nitsm://tickets/open\nitsm://tickets/{id}"]
+    P --> PA["create-incident-ticket\nticket-status-report\nkb-search-assist"]
+
+    style Spec fill:#eef2ff,stroke:#a5b4fc
+    style T fill:#dcfce7,stroke:#86efac
+    style R fill:#dbeafe,stroke:#93c5fd
+    style P fill:#ede9fe,stroke:#c4b5fd
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MCP Tools ──────────────────────────────────────────────────────────── -->
+  <section id="tools">
+    <h2><span class="icon">🔧</span> MCP Tools</h2>
+
+    <p>All 7 tools are registered via <code>McpServer.tool()</code> with <strong>Zod input schemas</strong> and
+       <strong>safety annotations</strong>. LLM clients read annotations to decide whether a tool is safe
+       to call without user confirmation.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tool name</th>
+            <th>Title</th>
+            <th>Read-only</th>
+            <th>Idempotent</th>
+            <th>Required params</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>create_ticket</code></td><td>Create Ticket</td><td>—</td><td>—</td><td><code>title</code>, <code>description</code></td></tr>
+          <tr><td><code>get_ticket</code></td><td>Get Ticket</td><td><span class="tag tag-ro">yes</span></td><td><span class="tag tag-idem">yes</span></td><td><code>ticket_id</code></td></tr>
+          <tr><td><code>update_ticket</code></td><td>Update Ticket</td><td>—</td><td>—</td><td><code>ticket_id</code></td></tr>
+          <tr><td><code>list_tickets</code></td><td>List Tickets</td><td><span class="tag tag-ro">yes</span></td><td><span class="tag tag-idem">yes</span></td><td>—</td></tr>
+          <tr><td><code>assign_ticket</code></td><td>Assign Ticket</td><td>—</td><td><span class="tag tag-idem">yes</span></td><td><code>ticket_id</code>, <code>user_id</code></td></tr>
+          <tr><td><code>add_comment</code></td><td>Add Comment</td><td>—</td><td>—</td><td><code>ticket_id</code>, <code>comment</code></td></tr>
+          <tr><td><code>search_knowledge_base</code></td><td>Search KB</td><td><span class="tag tag-ro">yes</span></td><td><span class="tag tag-idem">yes</span></td><td><code>query</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>All tools share an optional <code>system</code> parameter:
+       <code>servicenow</code> · <code>jira</code> · <code>zendesk</code> · <code>ivanti_neurons</code> · <code>cherwell</code> (default: <code>jira</code>)</p>
+
+    <h3>Tool Annotations Diagram</h3>
+    <div class="diagram-wrap">
+      <div class="label">Safety annotations by tool</div>
+      <div class="mermaid">
+graph LR
+    subgraph ReadOnly["Read-only tools (safe to call freely)"]
+        GT["get_ticket\nreadOnly=true\nidempotent=true"]
+        LT["list_tickets\nreadOnly=true\nidempotent=true"]
+        SK["search_knowledge_base\nreadOnly=true\nidempotent=true"]
+    end
+    subgraph Write["Write tools (require intent)"]
+        CT["create_ticket\nwrite · non-idempotent"]
+        UT["update_ticket\nwrite · non-idempotent"]
+        AT["assign_ticket\nwrite · idempotent"]
+        AC["add_comment\nwrite · non-idempotent"]
+    end
+    style ReadOnly fill:#f0fdf4,stroke:#86efac
+    style Write fill:#fff1f2,stroke:#fecdd3
+      </div>
+    </div>
+
+    <h3>Example call &amp; response</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      <pre><code><span style="color:#94a3b8">// Tool call</span>
+{
+  "name": "create_ticket",
+  "arguments": {
+    "title": "VPN fails after KB5034441 Windows update",
+    "description": "Clients on 22H2 cannot authenticate after patching.",
+    "priority": "high",
+    "system": "jira"
+  }
+}
+
+<span style="color:#94a3b8">// Response</span>
+{
+  "success": true,
+  "ticket": {
+    "id": "JIRA-1000",
+    "title": "VPN fails after KB5034441 Windows update",
+    "system": "jira",
+    "status": "open",
+    "priority": "high",
+    "url": "https://example.com/jira/tickets/JIRA-1000"
+  },
+  "_meta": { "latencyMs": 4, "toolName": "create_ticket" }
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ── Resources ──────────────────────────────────────────────────────────── -->
+  <section id="resources">
+    <h2><span class="icon">📂</span> MCP Resources <span class="badge badge-new tag-new" style="font-size:.7rem;vertical-align:middle">New in v3</span></h2>
+
+    <p>Resources let LLM clients <em>read</em> live data without a tool call.
+       The server registers static resources and URI templates using <code>McpServer.resource()</code>.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>URI</th><th>Name</th><th>Description</th><th>MIME</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>kb://articles</code></td><td>kb-articles</td><td>All knowledge base articles</td><td><code>application/json</code></td></tr>
+          <tr><td><code>kb://articles/{id}</code></td><td>kb-article</td><td>Single KB article by ID (e.g. <code>KB-001</code>)</td><td><code>application/json</code></td></tr>
+          <tr><td><code>itsm://tickets/open</code></td><td>open-tickets</td><td>All currently open tickets (live)</td><td><code>application/json</code></td></tr>
+          <tr><td><code>itsm://tickets/{ticketId}</code></td><td>ticket</td><td>Single ticket by ID (e.g. <code>JIRA-1000</code>)</td><td><code>application/json</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="label">Resource registration pattern</div>
+      <div class="mermaid">
+graph LR
+    McpSrv["McpServer\nindex.js"]
+
+    McpSrv -->|"static URI\nkb://articles"| KBAll["kb-articles\nAll 5 KB articles\nas JSON array"]
+    McpSrv -->|"ResourceTemplate\nkb://articles/{id}"| KBOne["kb-article\nSingle article lookup\nby ID string"]
+    McpSrv -->|"static URI\nitsm://tickets/open"| TktOpen["open-tickets\nLive filtered view\nfrom in-memory Map"]
+    McpSrv -->|"ResourceTemplate\nitsm://tickets/{ticketId}"| TktOne["ticket\nSingle ticket lookup\nby ID string"]
+
+    style McpSrv fill:#f0fdf4,stroke:#86efac
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Prompts ──────────────────────────────────────────────────────────── -->
+  <section id="prompts">
+    <h2><span class="icon">💬</span> MCP Prompts <span class="badge badge-new tag-new" style="font-size:.7rem;vertical-align:middle">New in v3</span></h2>
+
+    <p>Prompts are guided message templates that client UIs can surface to users before starting a
+       tool-call sequence. They accept typed Zod arguments and return pre-composed messages.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Description</th><th>Required args</th><th>Optional args</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>create-incident-ticket</code></td>
+            <td>P1/P2 incident ticket with structured description template</td>
+            <td><code>title</code></td>
+            <td><code>system</code>, <code>affected_service</code></td>
+          </tr>
+          <tr>
+            <td><code>ticket-status-report</code></td>
+            <td>Structured summary of the current ticket queue by priority</td>
+            <td>—</td>
+            <td><code>filter_status</code></td>
+          </tr>
+          <tr>
+            <td><code>kb-search-assist</code></td>
+            <td>Search KB before creating a ticket — self-service first</td>
+            <td><code>issue_description</code></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="label">Prompt workflow — kb-search-assist</div>
+      <div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant Client as MCP Client
+    participant MCP as McpServer
+    participant KB as KB Resource
+
+    U->>Client: "My printer won't install"
+    Client->>MCP: prompts/get  kb-search-assist
+    MCP-->>Client: Composed message template
+    Client->>MCP: tools/call  search_knowledge_base
+    MCP->>KB: Filter articles by query
+    KB-->>MCP: Matching articles
+    MCP-->>Client: KB results
+    Client->>U: "Found KB-005: Printer setup guide"
+    note over Client,U: Only create ticket if no KB article resolves it
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Monitoring ──────────────────────────────────────────────────────────── -->
+  <section id="monitoring">
+    <h2><span class="icon">📊</span> Monitoring Dashboard <span class="badge badge-new tag-new" style="font-size:.7rem;vertical-align:middle">New in v3</span></h2>
+
+    <p>The React frontend includes a live monitoring dashboard at <code>/mcp-monitor</code> that polls the
+       backend every <strong>10 seconds</strong>. Metrics are tracked in the Express layer —
+       no external monitoring service required.</p>
+
+    <div class="grid-2">
+      <div>
+        <h3>What it shows</h3>
+        <ul style="margin-left:1.2rem;color:var(--muted);font-size:.88rem;line-height:2">
+          <li>Server connected / disconnected with uptime</li>
+          <li>Total calls, success rate, failed count</li>
+          <li>Per-tool call counts + average latency</li>
+          <li>Tool list with annotation badges</li>
+          <li>Registered resources and prompts</li>
+          <li>Live activity log — last 20 calls</li>
+        </ul>
+      </div>
+      <div>
+        <h3>How it works</h3>
+        <div class="diagram-wrap" style="margin:0">
+          <div class="mermaid">
+graph TD
+    Dashboard["React\n/mcp-monitor\npoll every 10s"]
+    Dashboard -->|"GET /api/mcp/health"| Health["connected\nuptimeSeconds"]
+    Dashboard -->|"GET /api/mcp/metrics"| Metrics["totalCalls\nsuccessRate\ntoolStats\nrecentCalls"]
+    Dashboard -->|"GET /api/mcp/tools/list"| Tools["tool names\nannotations"]
+    Dashboard -->|"GET /api/mcp/resources/list"| Resources["resource URIs"]
+    Dashboard -->|"GET /api/mcp/prompts/list"| Prompts["prompt names"]
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="url-list" style="margin-top:1.2rem">
+      <div class="url-row"><code>http://localhost:3000/mcp-monitor</code><span>React monitoring dashboard (auto-refreshes)</span></div>
+      <div class="url-row"><code>http://localhost:5000/api/mcp/metrics</code><span>Raw JSON metrics (Bearer token required)</span></div>
+    </div>
+  </section>
+
+  <!-- ── Request Flow ──────────────────────────────────────────────────────── -->
+  <section id="flow">
+    <h2><span class="icon">🔄</span> Request Flow</h2>
+
+    <h3>Browser tool call — end to end</h3>
+    <div class="diagram-wrap">
+      <div class="label">Sequence: user creates a ticket from the React UI</div>
+      <div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant UI as React UI :3000
+    participant API as Express API :5000
+    participant MC as MCP SDK Client
+    participant MCP as McpServer index.js
+
+    U->>UI: Submit create-ticket form
+    UI->>API: POST /api/mcp/tools/call\nAuthorization: Bearer token
+    note over API: JWT auth check
+    API->>MC: client.callTool(create_ticket, args)
+    note over MC: StdioClientTransport\n(full MCP handshake)
+    MC->>MCP: tools/call  (MCP JSON-RPC)
+    note over MCP: Zod validates input
+    MCP->>MCP: createTicket() handler
+    MCP-->>MC: CallToolResult content[]
+    MC-->>API: result
+    API->>API: recordCall() → metrics store
+    API-->>UI: { success, ticket, _meta: {latencyMs} }
+    UI->>U: New ticket shown in list
+      </div>
+    </div>
+
+    <h3>MCP Inspector / Smithery direct call</h3>
+    <div class="diagram-wrap">
+      <div class="label">Sequence: tool call via stdio (Claude, Smithery, Inspector)</div>
+      <div class="mermaid">
+sequenceDiagram
+    participant Client as MCP Client\n(Claude / Smithery)
+    participant Trans as StdioServerTransport
+    participant Srv as McpServer
+
+    Client->>Trans: initialize  { protocolVersion: 2025-11-25 }
+    Trans-->>Client: capabilities { tools, resources, prompts }
+    Client->>Trans: tools/list
+    Trans->>Srv: ListToolsRequest
+    Srv-->>Trans: 7 tools with annotations + Zod schemas
+    Trans-->>Client: tools array
+    Client->>Trans: tools/call  search_knowledge_base
+    Trans->>Srv: CallToolRequest (Zod validated)
+    Srv-->>Trans: content[ { type:text, text:JSON } ]
+    Trans-->>Client: result
+      </div>
+    </div>
+
+    <h3>Data lifecycle — create ticket</h3>
+    <div class="diagram-wrap">
+      <div class="label">Data transformation through each layer</div>
+      <div class="mermaid">
+flowchart LR
+    subgraph UI["React UI"]
+        Form["Form input\ntitle, desc\npriority, system"]
+    end
+    subgraph API["Express :5000"]
+        JWT["JWT verify"]
+        Bridge["SDK Client\ncallTool()"]
+        Metrics["recordCall()\nlatency, success"]
+    end
+    subgraph MCP["McpServer"]
+        Zod["Zod validate\ninput schema"]
+        Handler["createTicket()\nbusiness logic"]
+        Memory["tickets Map\nnextTicketId++"]
+    end
+
+    Form -->|"POST /api/mcp/tools/call\n{ name, arguments }"| JWT
+    JWT --> Bridge
+    Bridge -->|"MCP protocol\ntools/call"| Zod
+    Zod --> Handler
+    Handler --> Memory
+    Memory -->|ticket object| Handler
+    Handler -->|CallToolResult| Bridge
+    Bridge --> Metrics
+    Metrics -->|"{ success, ticket, _meta }"| Form
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quick Start ────────────────────────────────────────────────────────── -->
+  <section id="quickstart">
+    <h2><span class="icon">🚀</span> Quick Start</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-body">
+          <h4>Install dependencies — 3 packages</h4>
+          <p>Root (MCP server + Zod), backend (Express + SDK Client), frontend (React)</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-body">
+          <h4>Configure environment variables</h4>
+          <p>Copy <code>.env.example</code> files; set <code>MONGODB_URI</code> and <code>JWT_SECRET</code> in <code>backend/.env</code></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-body">
+          <h4>Start 3 services (3 terminals)</h4>
+          <p>MCP server on stdio · Express API on :5000 · React dev server on :3000</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        <span class="terminal-label">Terminal 1 — MCP Server (stdio)</span>
+      </div>
+      <pre><span class="prompt">$ </span><span class="cmd">npm install</span>
+<span class="prompt">$ </span><span class="cmd">npm start</span>
+<span class="out">MCP ITSM Server v3.0.0 running on stdio (spec 2025-11-25)</span></pre>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        <span class="terminal-label">Terminal 2 — Express Backend</span>
+      </div>
+      <pre><span class="prompt">$ </span><span class="cmd">cd backend && npm install && npm start</span>
+<span class="out">Connected to MongoDB</span>
+<span class="out">Server running on port 5000</span></pre>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        <span class="terminal-label">Terminal 3 — React Frontend</span>
+      </div>
+      <pre><span class="prompt">$ </span><span class="cmd">cd frontend && npm install && npm start</span>
+<span class="out">webpack compiled successfully</span>
+<span class="out">Local: http://localhost:3000</span></pre>
+    </div>
+
+    <h3>Access points</h3>
+    <div class="url-list">
+      <div class="url-row"><code>http://localhost:3000</code><span>React web app</span></div>
+      <div class="url-row"><code>http://localhost:3000/mcp-tickets</code><span>MCP Ticket Manager</span></div>
+      <div class="url-row"><code>http://localhost:3000/mcp-monitor</code><span>Live Monitoring Dashboard (polls every 10s)</span></div>
+      <div class="url-row"><code>http://localhost:5000/health</code><span>Backend health check (no auth)</span></div>
+      <div class="url-row"><code>http://localhost:5000/api/mcp/health</code><span>MCP server connectivity</span></div>
+      <div class="url-row"><code>http://localhost:5000/api/mcp/metrics</code><span>Tool-call metrics (Bearer token required)</span></div>
+    </div>
+
+    <h3>Startup flow</h3>
+    <div class="diagram-wrap">
+      <div class="label">Service startup and dependency order</div>
+      <div class="mermaid">
+flowchart TD
+    I1["npm install  (root)"]
+    I2["cd backend && npm install"]
+    I3["cd frontend && npm install"]
+    E1["cp .env.example .env\ncp backend/.env.example backend/.env"]
+    E2["Edit MONGODB_URI + JWT_SECRET\nin backend/.env"]
+
+    I1 --> I2 --> I3 --> E1 --> E2
+
+    E2 --> S1["Terminal 1\nnpm start\nMCP Server on stdio"]
+    E2 --> S2["Terminal 2\ncd backend && npm start\nExpress API :5000"]
+    E2 --> S3["Terminal 3\ncd frontend && npm start\nReact app :3000"]
+
+    S1 --> Ready{All running?}
+    S2 --> Ready
+    S3 --> Ready
+
+    Ready -->|yes| URLs["localhost:3000/mcp-tickets\nlocalhost:3000/mcp-monitor"]
+    Ready -->|MCP issue| Fix1["Check Terminal 1 output\nnode --version needs 18+"]
+    Ready -->|Backend issue| Fix2["Check MongoDB running\nCheck backend/.env"]
+
+    style Ready fill:#f0fdf4,stroke:#86efac
+    style URLs fill:#eff6ff,stroke:#bfdbfe
+    style Fix1 fill:#fff1f2,stroke:#fecdd3
+    style Fix2 fill:#fff1f2,stroke:#fecdd3
+      </div>
+    </div>
+  </section>
+
+  <!-- ── API Reference ──────────────────────────────────────────────────────── -->
+  <section id="api">
+    <h2><span class="icon">📡</span> API Reference</h2>
+
+    <p>All <code>/api/mcp/*</code> routes require <code>Authorization: Bearer &lt;token&gt;</code> from the <code>/api/auth/login</code> response.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Path</th><th>Description</th><th>Auth</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>GET</code></td><td><code>/health</code></td><td>Backend health — no MCP needed</td><td>—</td></tr>
+          <tr><td><code>GET</code></td><td><code>/api/mcp/health</code></td><td>MCP server connectivity + uptime</td><td>JWT</td></tr>
+          <tr><td><code>GET</code></td><td><code>/api/mcp/metrics</code></td><td>Tool-call counts, latency, recent activity</td><td>JWT</td></tr>
+          <tr><td><code>GET</code></td><td><code>/api/mcp/tools/list</code></td><td>All registered tools with Zod schemas + annotations</td><td>JWT</td></tr>
+          <tr><td><code>POST</code></td><td><code>/api/mcp/tools/call</code></td><td>Call a tool — body: <code>{ name, arguments }</code></td><td>JWT</td></tr>
+          <tr><td><code>GET</code></td><td><code>/api/mcp/resources/list</code></td><td>All registered MCP resources</td><td>JWT</td></tr>
+          <tr><td><code>GET</code></td><td><code>/api/mcp/prompts/list</code></td><td>All registered MCP prompts</td><td>JWT</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>curl example</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      <pre><code><span style="color:#64748b"># 1. Login and capture token</span>
+TOKEN=$(curl -s -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"password"}' \
+  | jq -r '.token')
+
+<span style="color:#64748b"># 2. Search the knowledge base</span>
+curl -X POST http://localhost:5000/api/mcp/tools/call \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "search_knowledge_base",
+    "arguments": { "query": "vpn", "limit": 3 }
+  }'
+
+<span style="color:#64748b"># 3. Check live metrics</span>
+curl -H "Authorization: Bearer $TOKEN" \
+  http://localhost:5000/api/mcp/metrics</code></pre>
+    </div>
+  </section>
+
+  <!-- ── Smithery Deployment ──────────────────────────────────────────────── -->
+  <section id="deployment">
+    <h2><span class="icon">☁️</span> Smithery Deployment</h2>
+
+    <p>The server is published at <a href="https://smithery.ai/server/@madosh/mcp-itsm" target="_blank"><strong>@madosh/mcp-itsm</strong></a> on Smithery.
+       The <code>smithery.yaml</code> starts the MCP server via <code>npm start</code> and injects <code>API_KEY</code> from Smithery's config panel.</p>
+
+    <div class="diagram-wrap">
+      <div class="label">Smithery deployment flow</div>
+      <div class="mermaid">
+flowchart LR
+    SmitheryUser["Smithery user\nor Claude"]
+    SmitheryCloud["Smithery Cloud\nDocker container"]
+    NpmStart["npm start\nnpm run node index.js"]
+    MCPSrv["McpServer v3.0.0\nstdio transport"]
+    Tools["7 Tools\n4 Resources\n3 Prompts"]
+
+    SmitheryUser -->|"install @madosh/mcp-itsm\nconfig: { apiKey }"| SmitheryCloud
+    SmitheryCloud -->|"docker build .\nenv API_KEY=config.apiKey"| NpmStart
+    NpmStart --> MCPSrv
+    MCPSrv --> Tools
+    SmitheryCloud <-->|stdio| MCPSrv
+    SmitheryUser <-->|MCP protocol| SmitheryCloud
+
+    style SmitheryCloud fill:#eff6ff,stroke:#bfdbfe
+    style MCPSrv fill:#f0fdf4,stroke:#86efac
+      </div>
+    </div>
+
+    <h3>One-line install (Claude Desktop)</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      <pre><code>npx -y @smithery/cli install @madosh/mcp-itsm --client claude</code></pre>
+    </div>
+
+    <h3>Manual deploy</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      <pre><code>npm install -g @smithery/cli
+smithery login
+smithery publish</code></pre>
+    </div>
+
+    <h3>Claude Desktop config</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      <pre><code>{
+  "mcpServers": {
+    "mcp-itsm": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-itsm/index.js"],
+      "env": { "API_KEY": "your-key" }
+    }
+  }
+}</code></pre>
+    </div>
+
+    <h3>Debug with MCP Inspector</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      <pre><code>npm run debug-mcp
+<span style="color:#64748b"># Opens Inspector UI at http://localhost:5173</span></code></pre>
+    </div>
+  </section>
+
+  <!-- ── What Changed ──────────────────────────────────────────────────────── -->
+  <section id="upgrade">
+    <h2><span class="icon">📈</span> What Changed — v1 → v3</h2>
+
+    <p>The project was originally built on MCP spec <strong>2024-11-05</strong> with SDK <strong>1.0.4</strong>.
+       Here's what was upgraded in May 2026 to reach spec <strong>2025-11-25</strong> and SDK <strong>1.28.0</strong>.</p>
+
+    <div class="diagram-wrap">
+      <div class="label">Before vs after — key architecture differences</div>
+      <div class="mermaid">
+graph LR
+    subgraph Before["Before  (SDK 1.0.4 · spec 2024-11-05)"]
+        B1["Server class\n+ setRequestHandler"]
+        B2["Plain JSON Schema\nobjects as inputSchema"]
+        B3["No annotations"]
+        B4["Tools only\nno resources or prompts"]
+        B5["Manual child-process\nraw JSON-RPC bridge"]
+        B6["No metrics"]
+        B7["parameters key\nin tools.json (wrong)"]
+    end
+
+    subgraph After["After  (SDK 1.28.0 · spec 2025-11-25)"]
+        A1["McpServer\nhigh-level API"]
+        A2["Zod schemas\nauto-converted"]
+        A3["Tool annotations\nreadOnly, destructive, idempotent"]
+        A4["Tools + Resources\n+ Prompts"]
+        A5["SDK Client\n+ StdioClientTransport"]
+        A6["Metrics store\n+ /api/mcp/metrics\n+ /mcp-monitor dashboard"]
+        A7["inputSchema key\naligned with spec"]
+    end
+
+    B1 -->|replaced| A1
+    B2 -->|replaced| A2
+    B3 -->|added| A3
+    B4 -->|extended| A4
+    B5 -->|replaced| A5
+    B6 -->|added| A6
+    B7 -->|fixed| A7
+
+    style Before fill:#fff1f2,stroke:#fecdd3
+    style After fill:#f0fdf4,stroke:#86efac
+      </div>
+    </div>
+
+    <h3>Upgrade checklist</h3>
+    <div class="roadmap">
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">SDK 1.0.4 → 1.28.0 · Zod added</div><div class="ri-desc">package.json · npm install</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">Server → McpServer (high-level API)</div><div class="ri-desc">index.js full rewrite</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">Plain JSON Schema → Zod schemas</div><div class="ri-desc">All 7 tools — SDK 1.28 rejects plain objects on McpServer.tool()</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">Tool annotations on all 7 tools</div><div class="ri-desc">readOnlyHint · destructiveHint · idempotentHint · openWorldHint</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">title field on all tools</div><div class="ri-desc">Human-readable display name separate from programmatic name</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">MCP Resources (4) added</div><div class="ri-desc">kb://articles · kb://articles/{id} · itsm://tickets/open · itsm://tickets/{id}</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">MCP Prompts (3) added</div><div class="ri-desc">create-incident-ticket · ticket-status-report · kb-search-assist</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">SDK Client + StdioClientTransport</div><div class="ri-desc">Replaces the manual child-process JSON-RPC bridge in mcp.routes.js</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">Metrics store + monitoring endpoints</div><div class="ri-desc">/api/mcp/metrics · /api/mcp/resources/list · /api/mcp/prompts/list</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">React monitoring dashboard at /mcp-monitor</div><div class="ri-desc">Auto-refreshes every 10s · server status · per-tool stats · activity log</div></div></div>
+      <div class="roadmap-item done"><span class="ri-icon">✅</span><div class="ri-body"><div class="ri-title">tools.json: parameters → inputSchema + annotations + titles</div><div class="ri-desc">Aligned with Smithery CLI 4.7+ tree-based browser</div></div></div>
+      <div class="roadmap-item todo"><span class="ri-icon">⏳</span><div class="ri-body"><div class="ri-title">OAuth 2.1 / OIDC authorization</div><div class="ri-desc">Needed for external clients beyond Smithery localhost — not yet implemented</div></div></div>
+      <div class="roadmap-item todo"><span class="ri-icon">⏳</span><div class="ri-body"><div class="ri-title">Elicitation (server-initiated user prompts)</div><div class="ri-desc">Ask user for clarification mid-tool-call — useful for interactive ticket creation</div></div></div>
+      <div class="roadmap-item todo"><span class="ri-icon">⏳</span><div class="ri-body"><div class="ri-title">Experimental Tasks (durable async tracking)</div><div class="ri-desc">For long-running ticket workflows with polling + deferred results</div></div></div>
+    </div>
+  </section>
+
+  <!-- ── Resources ──────────────────────────────────────────────────────────── -->
+  <section>
+    <h2><span class="icon">🔗</span> Resources</h2>
+    <ul style="margin-left:1.2rem;line-height:2.2;font-size:.9rem">
+      <li><a href="https://modelcontextprotocol.io/specification/2025-11-25" target="_blank">MCP Specification 2025-11-25</a></li>
+      <li><a href="https://github.com/modelcontextprotocol/typescript-sdk" target="_blank">MCP TypeScript SDK (GitHub)</a></li>
+      <li><a href="https://smithery.ai/server/@madosh/mcp-itsm" target="_blank">@madosh/mcp-itsm on Smithery</a></li>
+      <li><a href="https://smithery.ai/docs" target="_blank">Smithery Documentation</a></li>
+      <li><a href="README.md" target="_blank">README.md</a></li>
+      <li><a href="QUICK_START.md" target="_blank">QUICK_START.md</a></li>
+      <li><a href="ARCHITECTURE_DIAGRAM.md" target="_blank">ARCHITECTURE_DIAGRAM.md (Mermaid source)</a></li>
+    </ul>
+  </section>
+
+</div><!-- .page -->
+
+<footer>
+  <p>MCP ITSM v3.0.0 &nbsp;·&nbsp; Spec 2025-11-25 &nbsp;·&nbsp; SDK 1.28.0 &nbsp;·&nbsp; MIT License</p>
+  <p style="margin-top:.4rem">Last updated: <span id="date"></span></p>
+</footer>
+
+<script>
+  // ── Mermaid ──────────────────────────────────────────────────────────────
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor:       '#eef2ff',
+      primaryBorderColor: '#a5b4fc',
+      primaryTextColor:   '#1e293b',
+      lineColor:          '#94a3b8',
+      fontSize:           '13px',
+    },
+    flowchart: { useMaxWidth: true, htmlLabels: false, curve: 'basis' },
+    sequence:  { useMaxWidth: true, messageMargin: 20 },
+  });
+
+  // ── Active nav ───────────────────────────────────────────────────────────
+  const sections = document.querySelectorAll('section[id], div[id="hero"]');
+  const navLinks = document.querySelectorAll('#topnav nav a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`#topnav nav a[href="#${entry.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ── Smooth scroll ────────────────────────────────────────────────────────
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+
+  // ── Copy buttons ─────────────────────────────────────────────────────────
+  function copyCode(btn) {
+    const code = btn.closest('.code-block').querySelector('pre').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => btn.textContent = 'copy', 1800);
+    });
+  }
+
+  // ── Date ────────────────────────────────────────────────────────────────
+  document.getElementById('date').textContent = new Date().toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  });
+</script>
+</body>
+</html>

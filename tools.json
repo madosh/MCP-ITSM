@@ -2,8 +2,15 @@
   "tools": [
     {
       "name": "create_ticket",
+      "title": "Create Ticket",
       "description": "Create a new support ticket in the appropriate ITSM system",
-      "parameters": {
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "inputSchema": {
         "type": "object",
         "properties": {
           "title": {
@@ -17,12 +24,14 @@
           "priority": {
             "type": "string",
             "enum": ["low", "medium", "high", "critical"],
+            "default": "medium",
             "description": "Priority level of the ticket"
           },
           "system": {
             "type": "string",
             "enum": ["servicenow", "jira", "zendesk", "ivanti_neurons", "cherwell"],
-            "description": "ITSM system to create the ticket in (optional)"
+            "default": "jira",
+            "description": "ITSM system to create the ticket in"
           }
         },
         "required": ["title", "description"]
@@ -30,13 +39,20 @@
     },
     {
       "name": "get_ticket",
-      "description": "Retrieve details of an existing ticket",
-      "parameters": {
+      "title": "Get Ticket",
+      "description": "Retrieve full details of an existing ticket by ID",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
         "type": "object",
         "properties": {
           "ticket_id": {
             "type": "string",
-            "description": "ID of the ticket to retrieve"
+            "description": "ID of the ticket to retrieve (e.g. JIRA-1000)"
           },
           "system": {
             "type": "string",
@@ -49,8 +65,15 @@
     },
     {
       "name": "update_ticket",
-      "description": "Update an existing support ticket",
-      "parameters": {
+      "title": "Update Ticket",
+      "description": "Update the status, priority, or add a comment to an existing ticket",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "inputSchema": {
         "type": "object",
         "properties": {
           "ticket_id": {
@@ -65,7 +88,7 @@
           "priority": {
             "type": "string",
             "enum": ["low", "medium", "high", "critical"],
-            "description": "New priority level for the ticket"
+            "description": "New priority level"
           },
           "comment": {
             "type": "string",
@@ -82,8 +105,15 @@
     },
     {
       "name": "list_tickets",
-      "description": "List tickets with optional filtering",
-      "parameters": {
+      "title": "List Tickets",
+      "description": "List tickets with optional filtering by status, assignee, or system",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
         "type": "object",
         "properties": {
           "status": {
@@ -93,10 +123,11 @@
           },
           "assigned_to": {
             "type": "string",
-            "description": "Filter tickets by assignee"
+            "description": "Filter tickets by assignee username"
           },
           "limit": {
             "type": "integer",
+            "default": 10,
             "description": "Maximum number of tickets to return"
           },
           "system": {
@@ -109,8 +140,15 @@
     },
     {
       "name": "assign_ticket",
-      "description": "Assign a ticket to a user",
-      "parameters": {
+      "title": "Assign Ticket",
+      "description": "Assign a ticket to a specific user",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
         "type": "object",
         "properties": {
           "ticket_id": {
@@ -119,7 +157,7 @@
           },
           "user_id": {
             "type": "string",
-            "description": "ID or username of the user to assign the ticket to"
+            "description": "Username or ID of the user to assign to"
           },
           "system": {
             "type": "string",
@@ -132,8 +170,15 @@
     },
     {
       "name": "add_comment",
-      "description": "Add a comment to an existing ticket",
-      "parameters": {
+      "title": "Add Comment",
+      "description": "Add a comment (public or internal note) to an existing ticket",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "inputSchema": {
         "type": "object",
         "properties": {
           "ticket_id": {
@@ -142,11 +187,12 @@
           },
           "comment": {
             "type": "string",
-            "description": "Comment text to add to the ticket"
+            "description": "Comment text to add"
           },
           "internal": {
             "type": "boolean",
-            "description": "Whether the comment is internal (not visible to end users)"
+            "default": false,
+            "description": "True = internal note not visible to end users"
           },
           "system": {
             "type": "string",
@@ -159,16 +205,24 @@
     },
     {
       "name": "search_knowledge_base",
-      "description": "Search for articles related to an issue",
-      "parameters": {
+      "title": "Search Knowledge Base",
+      "description": "Search knowledge base articles by keyword, error message, or topic",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "description": "Search query for knowledge base articles"
+            "description": "Search query — keywords, error messages, or topic"
           },
           "limit": {
             "type": "integer",
+            "default": 5,
             "description": "Maximum number of articles to return"
           },
           "system": {
@@ -181,4 +235,4 @@
       }
     }
   ]
-} 
+}

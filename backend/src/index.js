@@ -13,6 +13,7 @@ const authRoutes = require('./routes/auth.routes');
 const contextRoutes = require('./routes/context.routes');
 const integrationRoutes = require('./routes/integration.routes');
 const userRoutes = require('./routes/user.routes');
+const mcpRoutes = require('./routes/mcp.routes');
 
 // Initialize express app
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/context', contextRoutes);
 app.use('/api/integration', integrationRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/mcp', mcpRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

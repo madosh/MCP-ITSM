@@ -13,6 +13,8 @@ import Profile from './pages/Profile';
 import UserManagement from './pages/UserManagement';
 import ChatClient from './pages/ChatClient';
 import LLMChatClient from './pages/LLMChatClient';
+import MCPTicketManager from './pages/MCPTicketManager';
+import MCPMonitorDashboard from './pages/MCPMonitorDashboard';
 import NotFound from './pages/NotFound';
 
 // Components
@@ -84,6 +86,24 @@ function App() {
               element={
                 <PrivateRoute>
                   <LLMChatClient />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route 
+              path="/mcp-tickets" 
+              element={
+                <PrivateRoute>
+                  <MCPTicketManager />
+                </PrivateRoute>
+              } 
+            />
+            
+            <Route 
+              path="/mcp-monitor" 
+              element={
+                <PrivateRoute>
+                  <MCPMonitorDashboard />
                 </PrivateRoute>
               } 
             />

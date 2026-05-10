@@ -1,4 +1,5 @@
-# Smithery configuration file: https://smithery.ai/docs/deployments
+# Smithery configuration — https://smithery.ai/docs/build/publish
+# MCP ITSM Server v3.0.0 | spec 2025-11-25 | SDK ^1.28.0
 
 build:
   dockerBuildPath: .
@@ -6,19 +7,18 @@ build:
 startCommand:
   type: stdio
   configSchema:
-    # JSON Schema defining the configuration options for the MCP.
     type: object
     required:
       - apiKey
     properties:
       apiKey:
         type: string
-        description: The API key for the ITSM integration service.
+        description: API key for the ITSM integration service.
   commandFunction:
-    # A function that produces the CLI command to start the MCP on stdio.
     |-
     (config) => ({ command: 'npm', args: ['start'], env: { API_KEY: config.apiKey } })
 
-# Define the tools to expose to the LLM
+# Tools, resources, and prompts are served by the MCP server at runtime.
+# tools.json provides static metadata for Smithery's tree-based browser.
 tools:
-  path: ./tools.json 
+  path: ./tools.json

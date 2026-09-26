@@ -265,6 +265,27 @@ All 7 tools are registered via `McpServer.tool()` with **Zod input schemas** and
 
 **Supported systems** (via the optional `system` parameter): `servicenow` · `jira` · `zendesk` · `ivanti_neurons` · `cherwell` (default: `jira`)
 
+Every system runs against the in-memory mock store by default. `system=servicenow` is the one exception: when `SERVICENOW_BASE_URL`, `SERVICENOW_USERNAME`, and `SERVICENOW_PASSWORD` are all set (see [Configuration](#configuration)), `create_ticket`, `get_ticket`, `update_ticket`, `list_tickets`, `assign_ticket`, and `add_comment` are routed to a real ServiceNow instance instead. `search_knowledge_base` is not covered — it's mock-only for every system, including ServiceNow, for now.
+
+### ServiceNow Live Adapter
+
+`adapters/servicenow.js` talks to a real instance's [Table API](https://docs.servicenow.com/bundle/latest-release-notes/page/integrate/inbound-rest/concept/c_TableAPI.html) over Basic Auth, against the `incident` table by default (override with `SERVICENOW_TABLE`).
+
+| Our field | ServiceNow field | Notes |
+|---|---|---|
+| `title` | `short_description` | |
+| `description` | `description` | |
+| `priority` (low/medium/high/critical) | `impact` + `urgency` | We set both to the same mapped value (1–4); most instances derive `priority` from this pair rather than accepting direct writes. |
+| `status` (open/in_progress/resolved/closed) | `state` | Mapped to the out-of-box `incident` state values (1/2/6/7). **Many instances customise these** — if your `state` field uses different numbers, adjust `STATUS_TO_SN_STATE` / `SN_STATE_TO_STATUS` in `adapters/servicenow.js`. |
+| `comment` | `comments` (public) or `work_notes` (internal, via `internal: true`) | Both are journal fields — writes **append** a new entry, they never overwrite history. |
+| ticket `id` | `number` (e.g. `INC0010023`) | The real ServiceNow ticket number is returned as `id`, replacing the synthetic `SN-1000`-style ID used by the mock store. |
+
+`assign_ticket` passes `user_id` as a display value (`sysparm_input_display_value=true`), so a ServiceNow username works directly without first resolving it to a `sys_id`.
+
+Any ServiceNow API error (auth failure, invalid field, ticket not found, network timeout) is caught and returned as `{ success: false, error: "ServiceNow: ..." }` rather than throwing — callers get the same response shape as the mock store.
+
+**Out of scope for now:** CMDB/asset/CI records (ticket + KB only), knowledge base search against ServiceNow's KM API, and live adapters for Jira/Zendesk/Ivanti Neurons/Cherwell — see [Roadmap](#roadmap).
+
 ```mermaid
 graph LR
     subgraph RO["Read-only  —  safe to call freely"]
@@ -366,9 +387,17 @@ sequenceDiagram
 
 ### Root `.env` (MCP server + Smithery)
 
+The MCP server process (`index.js`) is what actually calls out to ITSM systems, so live-adapter credentials belong here, not in `backend/.env`.
+
 ```env
 # API key used when running via Smithery (injected as API_KEY env var)
 API_KEY=your-smithery-api-key
+
+# ServiceNow live adapter (optional — leave unset to keep system=servicenow
+# calls on the in-memory mock). See "ServiceNow Live Adapter" below.
+SERVICENOW_BASE_URL=https://your-instance.service-now.com
+SERVICENOW_USERNAME=
+SERVICENOW_PASSWORD=
 ```
 
 ### Backend `backend/.env`
@@ -385,7 +414,10 @@ MONGODB_URI=mongodb://localhost:27017/mcp-itsm
 JWT_SECRET=change-me-to-a-long-random-string
 JWT_EXPIRES_IN=1d
 
-# ITSM integrations (all optional — only needed for live system calls)
+# ITSM integrations reserved for future backend-level adapters. Only the
+# ServiceNow adapter is implemented so far, and it reads its credentials
+# from root `.env` (above), not from here — these are unused placeholders
+# until adapters move into the backend or the other systems get one too.
 SERVICENOW_BASE_URL=https://your-instance.service-now.com
 SERVICENOW_USERNAME=admin
 SERVICENOW_PASSWORD=
@@ -598,10 +630,12 @@ Contributions are welcome. Please:
 
 ### Roadmap
 
+- [x] Live ITSM system adapter — ServiceNow (Table API, incident table)
+- [ ] Live ITSM system adapters — Jira, Zendesk, Ivanti Neurons, Cherwell
+- [ ] CMDB / asset / CI support (currently ticket + KB only, no CMDB surface)
 - [ ] OAuth 2.1 / OIDC authorization for external clients
 - [ ] Elicitation — server-initiated mid-call user prompts
 - [ ] Experimental Tasks — durable async ticket workflows
-- [ ] Live ITSM system adapters (ServiceNow, Jira, Zendesk)
 - [ ] `outputSchema` / `structuredContent` on all tools
 
 ```mermaid
@@ -613,12 +647,14 @@ graph LR
         D4["Resources + Prompts"]
         D5["SDK Client transport"]
         D6["Metrics + Dashboard"]
+        D7["ServiceNow live adapter"]
     end
     subgraph Next["Next"]
         N1["OAuth 2.1 / OIDC"]
         N2["Elicitation"]
         N3["Tasks API"]
-        N4["Live ITSM adapters"]
+        N4["Jira/Zendesk/Ivanti/Cherwell live adapters"]
+        N5["CMDB support"]
     end
     style Done fill:#f0fdf4,stroke:#86efac
     style Next fill:#eff6ff,stroke:#bfdbfe

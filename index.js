@@ -12,11 +12,30 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import dotenv from 'dotenv';
+import { ServiceNowAdapter, formatAdapterError } from './adapters/servicenow.js';
 
 dotenv.config();
 
 // ---------------------------------------------------------------------------
-// In-memory data store
+// Live ITSM adapters (per-system, optional — falls back to the in-memory
+// store below when a system's credentials aren't configured)
+// ---------------------------------------------------------------------------
+
+const liveAdapters = {
+  servicenow: ServiceNowAdapter.fromEnv(),
+};
+
+if (liveAdapters.servicenow) {
+  console.error('[mcp-itsm] ServiceNow live adapter enabled (SERVICENOW_BASE_URL set)');
+}
+
+function getLiveAdapter(system) {
+  return liveAdapters[system] || null;
+}
+
+// ---------------------------------------------------------------------------
+// In-memory data store (mock mode — used for any system without a live
+// adapter configured above)
 // ---------------------------------------------------------------------------
 
 const tickets = new Map();
@@ -89,7 +108,16 @@ function generateTicketId(system = 'jira') {
   return `${prefixes[system] ?? 'TKT'}-${nextTicketId++}`;
 }
 
-function createTicket({ title, description, priority = 'medium', system = 'jira' }) {
+async function createTicket({ title, description, priority = 'medium', system = 'jira' }) {
+  const adapter = getLiveAdapter(system);
+  if (adapter) {
+    try {
+      return await adapter.createTicket({ title, description, priority });
+    } catch (err) {
+      return { success: false, error: formatAdapterError(err) };
+    }
+  }
+
   const id = generateTicketId(system);
   const ticket = {
     id,
@@ -110,13 +138,31 @@ function createTicket({ title, description, priority = 'medium', system = 'jira'
   };
 }
 
-function getTicket({ ticket_id }) {
+async function getTicket({ ticket_id, system }) {
+  const adapter = getLiveAdapter(system);
+  if (adapter) {
+    try {
+      return await adapter.getTicket({ ticket_id });
+    } catch (err) {
+      return { success: false, error: formatAdapterError(err) };
+    }
+  }
+
   const ticket = tickets.get(ticket_id);
   if (!ticket) return { success: false, error: `Ticket ${ticket_id} not found` };
   return { success: true, ticket: { ...ticket } };
 }
 
-function updateTicket({ ticket_id, status, priority, comment }) {
+async function updateTicket({ ticket_id, status, priority, comment, system }) {
+  const adapter = getLiveAdapter(system);
+  if (adapter) {
+    try {
+      return await adapter.updateTicket({ ticket_id, status, priority, comment });
+    } catch (err) {
+      return { success: false, error: formatAdapterError(err) };
+    }
+  }
+
   const ticket = tickets.get(ticket_id);
   if (!ticket) return { success: false, error: `Ticket ${ticket_id} not found` };
   if (status) ticket.status = status;
@@ -127,7 +173,16 @@ function updateTicket({ ticket_id, status, priority, comment }) {
   return { success: true, ticket: { id: ticket.id, title: ticket.title, status: ticket.status, priority: ticket.priority, system: ticket.system } };
 }
 
-function listTickets({ status, assigned_to, limit = 10, system } = {}) {
+async function listTickets({ status, assigned_to, limit = 10, system } = {}) {
+  const adapter = getLiveAdapter(system);
+  if (adapter) {
+    try {
+      return await adapter.listTickets({ status, assigned_to, limit });
+    } catch (err) {
+      return { success: false, error: formatAdapterError(err) };
+    }
+  }
+
   let list = Array.from(tickets.values());
   if (status && status !== 'all') list = list.filter(t => t.status === status);
   if (assigned_to) list = list.filter(t => t.assignee === assigned_to);
@@ -137,7 +192,16 @@ function listTickets({ status, assigned_to, limit = 10, system } = {}) {
   return { success: true, tickets: list.map(t => ({ id: t.id, title: t.title, status: t.status, priority: t.priority, system: t.system, created_at: t.created_at })), total: list.length };
 }
 
-function assignTicket({ ticket_id, user_id }) {
+async function assignTicket({ ticket_id, user_id, system }) {
+  const adapter = getLiveAdapter(system);
+  if (adapter) {
+    try {
+      return await adapter.assignTicket({ ticket_id, user_id });
+    } catch (err) {
+      return { success: false, error: formatAdapterError(err) };
+    }
+  }
+
   const ticket = tickets.get(ticket_id);
   if (!ticket) return { success: false, error: `Ticket ${ticket_id} not found` };
   ticket.assignee = user_id;
@@ -146,7 +210,16 @@ function assignTicket({ ticket_id, user_id }) {
   return { success: true, ticket: { id: ticket.id, title: ticket.title, assignee: user_id, system: ticket.system } };
 }
 
-function addComment({ ticket_id, comment, internal = false }) {
+async function addComment({ ticket_id, comment, internal = false, system }) {
+  const adapter = getLiveAdapter(system);
+  if (adapter) {
+    try {
+      return await adapter.addComment({ ticket_id, comment, internal });
+    } catch (err) {
+      return { success: false, error: formatAdapterError(err) };
+    }
+  }
+
   const ticket = tickets.get(ticket_id);
   if (!ticket) return { success: false, error: `Ticket ${ticket_id} not found` };
   const commentObj = { text: comment, internal, created_at: new Date().toISOString() };
@@ -196,7 +269,7 @@ async function main() {
       openWorldHint: false,
     },
     async ({ title, description, priority, system }) => {
-      const result = createTicket({ title, description, priority, system });
+      const result = await createTicket({ title, description, priority, system });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -215,8 +288,8 @@ async function main() {
       idempotentHint: true,
       openWorldHint: false,
     },
-    async ({ ticket_id }) => {
-      const result = getTicket({ ticket_id });
+    async ({ ticket_id, system }) => {
+      const result = await getTicket({ ticket_id, system });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -238,8 +311,8 @@ async function main() {
       idempotentHint: false,
       openWorldHint: false,
     },
-    async ({ ticket_id, status, priority, comment }) => {
-      const result = updateTicket({ ticket_id, status, priority, comment });
+    async ({ ticket_id, status, priority, comment, system }) => {
+      const result = await updateTicket({ ticket_id, status, priority, comment, system });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -261,7 +334,7 @@ async function main() {
       openWorldHint: false,
     },
     async ({ status, assigned_to, limit, system }) => {
-      const result = listTickets({ status, assigned_to, limit, system });
+      const result = await listTickets({ status, assigned_to, limit, system });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -281,8 +354,8 @@ async function main() {
       idempotentHint: true,
       openWorldHint: false,
     },
-    async ({ ticket_id, user_id }) => {
-      const result = assignTicket({ ticket_id, user_id });
+    async ({ ticket_id, user_id, system }) => {
+      const result = await assignTicket({ ticket_id, user_id, system });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -303,8 +376,8 @@ async function main() {
       idempotentHint: false,
       openWorldHint: false,
     },
-    async ({ ticket_id, comment, internal }) => {
-      const result = addComment({ ticket_id, comment, internal });
+    async ({ ticket_id, comment, internal, system }) => {
+      const result = await addComment({ ticket_id, comment, internal, system });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
